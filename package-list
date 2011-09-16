@@ -1,0 +1,5 @@
+com.horaz.client.model
+com.horaz.client.model.events
+com.horaz.client.util
+com.horaz.client.widgets
+com.horaz.client.widgets.events
