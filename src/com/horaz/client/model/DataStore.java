@@ -39,7 +39,7 @@ public abstract class DataStore<T extends BaseModel> implements HasHandlers {
 	/**
 	 * register a handler for {@link ModelAddedEvent} Event
 	 * @param handler
-	 * @return
+	 * @return gwt handler registration
 	 */
 	public HandlerRegistration addModelAddedListener(ModelAddedListener<T> handler) {
 		Type<ModelAddedListener<T>> type = ModelAddedEvent.getType();
@@ -49,7 +49,7 @@ public abstract class DataStore<T extends BaseModel> implements HasHandlers {
 	/**
 	 * register a handler for {@link ModelRemovedEvent} Event
 	 * @param handler
-	 * @return
+	 * @return gwt handler registration
 	 */
 	public HandlerRegistration addModelRemovedListener(ModelRemovedListener<T> handler) {
 		Type<ModelRemovedListener<T>> type = ModelRemovedEvent.getType();
@@ -59,7 +59,7 @@ public abstract class DataStore<T extends BaseModel> implements HasHandlers {
 	/**
 	 * register a handler for {@link ModelUpdatedEvent} Event
 	 * @param handler
-	 * @return
+	 * @return gwt handler registration
 	 */
 	public HandlerRegistration addModelUpdatedListener(ModelUpdatedListener<T> handler) {
 		Type<ModelUpdatedListener<T>> type = ModelUpdatedEvent.getType();

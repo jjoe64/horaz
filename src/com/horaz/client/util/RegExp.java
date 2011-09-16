@@ -175,7 +175,7 @@ public final class RegExp extends JavaScriptObject {
 
   /**
    * @param str
-   * @return
+   * @return result
    */
   public native Result exec(String str)
   /*-{
@@ -233,7 +233,7 @@ public final class RegExp extends JavaScriptObject {
 
   /**
    * @param str
-   * @return
+   * @return result
    */
   public native Result match(String str)
   /*-{
@@ -243,7 +243,7 @@ public final class RegExp extends JavaScriptObject {
   /**
    * @param str
    * @param replacement
-   * @return
+   * @return result
    */
   public native String replace(String str, String replacement)
   /*-{
@@ -270,7 +270,7 @@ public final class RegExp extends JavaScriptObject {
 
   /**
    * @param str
-   * @return
+   * @return result
    */
   public native Result split(String str)
   /*-{
@@ -283,7 +283,7 @@ public final class RegExp extends JavaScriptObject {
    *
    * @param str
    * @param limit
-   * @return
+   * @return result
    */
   public native Result split(String str, int limit)
   /*-{

@@ -36,7 +36,7 @@ public class ListView<T extends BaseModel> extends BaseWidget<UListElement> {
 	 * finds listview element for a given UListElement (html ul element)
 	 * @param <E> model class
 	 * @param elm
-	 * @return
+	 * @return listview
 	 */
 	@SuppressWarnings("unchecked")
 	static public <E extends BaseModel> ListView<E> byElement(UListElement elm) {
