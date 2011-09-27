@@ -52,7 +52,11 @@ public abstract class ItemClickListener<T extends BaseModel> implements F {
 
 			if (ul != null & li != null) {
 				ListView<T> lv = ListView.byElement((UListElement) ul);
-				onItemClick(event, lv.getModel((LIElement) li));
+				if (lv.getDataStore() == null) {
+					onItemClick(event, null);
+				} else {
+					onItemClick(event, lv.getModel((LIElement) li));
+				}
 			}
 		}
 	}
