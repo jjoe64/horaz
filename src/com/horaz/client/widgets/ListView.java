@@ -157,7 +157,14 @@ public class ListView<T extends BaseModel> extends BaseWidget<UListElement> {
 	 * renders the list items
 	 */
 	protected void refresh() {
-		_refresh(getElement());
+		if (isInitFired()) {
+			_refresh(getElement());
+		}
+	}
+	
+	// TODO place this is basewidget, better implementation
+	private boolean isInitFired() {
+		return getElement().getClassName().contains("ui-listview");
 	}
 
 	/**

@@ -21,6 +21,8 @@ package com.horaz.client.widgets;
 
 import com.google.gwt.dom.client.Element;
 import com.horaz.client.util.PageManager;
+import com.horaz.client.widgets.events.EventFactory;
+import com.horaz.client.widgets.events.PageCreateListener;
 
 /**
  * Coming from jquery mobile, in Horaz you define your
@@ -29,13 +31,22 @@ import com.horaz.client.util.PageManager;
  *
  * @horaz.htmltag &lt;div data-role="page"&gt; or &lt;div data-role="dialog"&gt;
  */
-public class Page extends BaseWidget<Element> {
+public abstract class Page extends BaseWidget<Element> {
 	static public Page byId(String id) {
-		return new Page(getElementById(id));
+		return new Page(getElementById(id)) {
+			@Override
+			public void onCreate() {}
+		};
 	}
 
 	protected Page(Element elm) {
 		super(elm);
+		EventFactory.bindEventHandler(getElement(), "pagecreate", new PageCreateListener() {
+			@Override
+			public void onPageCreate() {
+				onCreate();
+			}
+		});
 	}
 
 	/**
@@ -44,5 +55,6 @@ public class Page extends BaseWidget<Element> {
 	public void show() {
 		PageManager.changePage(this);
 	}
-
+	
+	public abstract void onCreate();
 }
