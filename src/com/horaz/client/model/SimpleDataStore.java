@@ -72,7 +72,7 @@ public class SimpleDataStore<T extends BaseModel> extends DataStore<T> {
 	 */
 	@Override
 	public List<T> getModels() {
-		return data;
+		return filter(data);
 	}
 
 	/**
@@ -85,5 +85,18 @@ public class SimpleDataStore<T extends BaseModel> extends DataStore<T> {
 		super.remove(model);
 		data.remove(model);
 		dataMap.remove(model.getModelId());
+	}
+	
+	protected List<T> filter(List<T> input) {
+		if (getFilter() != null) {
+			List<T> output = new ArrayList<T>();
+			for (T m : input) {
+				if (getFilter().match(m)) {
+					output.add(m);
+				}
+			}
+			return output;
+		}
+		return input;
 	}
 }

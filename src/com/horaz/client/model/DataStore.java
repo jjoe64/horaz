@@ -22,10 +22,12 @@ package com.horaz.client.model;
 import java.util.List;
 
 import com.google.gwt.event.shared.GwtEvent;
-import com.google.gwt.event.shared.GwtEvent.Type;
 import com.google.gwt.event.shared.HandlerManager;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.event.shared.HasHandlers;
+import com.google.gwt.event.shared.GwtEvent.Type;
+import com.horaz.client.model.events.FilterUpdatedEvent;
+import com.horaz.client.model.events.FilterUpdatedListener;
 import com.horaz.client.model.events.ModelAddedEvent;
 import com.horaz.client.model.events.ModelAddedListener;
 import com.horaz.client.model.events.ModelRemovedEvent;
@@ -43,6 +45,7 @@ import com.horaz.client.model.events.ModelUpdatedListener;
  */
 public abstract class DataStore<T extends BaseModel> implements HasHandlers {
 	private final HandlerManager handlerManager = new HandlerManager(this);
+	private Filter filter;
 
 	public DataStore() {}
 
@@ -85,6 +88,11 @@ public abstract class DataStore<T extends BaseModel> implements HasHandlers {
 		return handlerManager.addHandler(type, handler);
 	}
 
+	public HandlerRegistration addFilterUpdatedListener(FilterUpdatedListener handler) {
+		Type<FilterUpdatedListener> type = FilterUpdatedEvent.getType();
+		return handlerManager.addHandler(type, handler);
+	}
+
 	@Override
 	public void fireEvent(GwtEvent<?> event) {
 		handlerManager.fireEvent(event);
@@ -117,5 +125,14 @@ public abstract class DataStore<T extends BaseModel> implements HasHandlers {
 	 */
 	public void update(T saveModel) {
 		fireEvent(new ModelUpdatedEvent<T>(saveModel));
+	}
+	
+	public void setFilter(Filter filter) {
+		this.filter = filter;
+		fireEvent(new FilterUpdatedEvent());
+	}
+	
+	public Filter getFilter() {
+		return filter;
 	}
 }

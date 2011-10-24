@@ -26,6 +26,8 @@ import com.google.gwt.dom.client.Node;
 import com.google.gwt.dom.client.UListElement;
 import com.horaz.client.model.BaseModel;
 import com.horaz.client.model.DataStore;
+import com.horaz.client.model.events.FilterUpdatedEvent;
+import com.horaz.client.model.events.FilterUpdatedListener;
 import com.horaz.client.model.events.ModelAddedEvent;
 import com.horaz.client.model.events.ModelAddedListener;
 import com.horaz.client.model.events.ModelRemovedEvent;
@@ -116,7 +118,7 @@ public class ListView<T extends BaseModel> extends BaseWidget<UListElement> {
 	private String generateItemInnerHTML(T model) {
 		// create a new list item from template
 		String templateid = getElement().getAttribute("data-template");
-		if (templateid == null) {
+		if (templateid == null || templateid.isEmpty()) {
 			throw new IllegalStateException("attribute data-template has to be set.");
 		}
 		Element template = getElementById(templateid);
@@ -222,6 +224,21 @@ public class ListView<T extends BaseModel> extends BaseWidget<UListElement> {
 			@Override
 			public void onModelUpdated(ModelUpdatedEvent<T> event) {
 				updateItem(event.getModel());
+				refresh();
+			}
+		});
+		this.dataStore.addFilterUpdatedListener(new FilterUpdatedListener() {
+			@Override
+			public void onFilterUpdated(FilterUpdatedEvent event) {
+				//TODO performance, filter existing elements
+				while (getElement().getChildCount()>0) {
+					getElement().removeChild(getElement().getChild(0));
+				}
+				// create a list item for each model
+				for (T model : ListView.this.dataStore.getModels()) {
+					createNewItem(model);
+				}
+
 				refresh();
 			}
 		});
