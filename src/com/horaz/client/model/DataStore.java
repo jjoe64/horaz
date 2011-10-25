@@ -135,4 +135,15 @@ public abstract class DataStore<T extends BaseModel> implements HasHandlers {
 	public Filter getFilter() {
 		return filter;
 	}
+	
+	public T find(String field, Object value) {
+		return find(new Filter().whereEquals(field, value));
+	}
+	
+	public T find(Filter filter) {
+		for (T m : getModels()) {
+			if (filter.match(m)) return m;
+		}
+		return null;
+	}
 }
