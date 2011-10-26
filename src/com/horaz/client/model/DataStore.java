@@ -20,9 +20,9 @@
 package com.horaz.client.model;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.event.shared.HandlerManager;
@@ -98,14 +98,34 @@ public abstract class DataStore<T extends BaseModel> implements HasHandlers {
 	}
 
 	public T find(Filter filter) {
+		List<T> r = find(filter, true);
+		if (r.isEmpty()) return null;
+		return r.get(0);
+	}
+
+	private List<T> find(Filter filter, boolean first) {
+		List<T> r = new ArrayList<T>();
 		for (T m : getModels()) {
-			if (filter.match(m)) return m;
+			if (filter.match(m)) {
+				r.add(m);
+				if (first) {
+					return r;
+				}
+			}
 		}
-		return null;
+		return r;
 	}
 
 	public T find(String field, Object value) {
 		return find(new Filter().whereEquals(field, value));
+	}
+
+	public List<T> findAll(Filter filter) {
+		return find(filter, false);
+	}
+
+	public List<T> findAll(String field, Object value) {
+		return find(new Filter().whereEquals(field, value), false);
 	}
 
 	@Override
@@ -134,16 +154,17 @@ public abstract class DataStore<T extends BaseModel> implements HasHandlers {
 	public abstract List<T> getModels();
 
 	protected List<T> group(List<T> mdls) {
-		Set<Object> already = new HashSet<Object>();
+		Map<Object, T> already = new HashMap<Object, T>();
 		if (groupBy != null && groupBy.length()>0) {
-			List<T> r = new ArrayList<T>();
 			for (T mdl : mdls) {
-				if (!already.contains(mdl.getField(groupBy))) {
-					r.add(mdl);
-					already.add(mdl.getField(groupBy));
+				if (!already.containsKey(mdl.getField(groupBy))) {
+					already.put(mdl.getField(groupBy), mdl);
+				} else {
+					// add as child
+					already.get(mdl.getField(groupBy)).addChild(mdl);
 				}
 			}
-			return r;
+			return new ArrayList<T>(already.values());
 		} else {
 			return mdls;
 		}

@@ -19,7 +19,9 @@
 
 package com.horaz.client.model;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.google.gwt.dom.client.Element;
@@ -71,6 +73,7 @@ public abstract class BaseModel {
 
 	final private Map<String, Object> fields;
 	final private int modelId;
+	private ArrayList<BaseModel> children;
 	static private int lastId = 0;
 
 	/**
@@ -79,6 +82,17 @@ public abstract class BaseModel {
 	public BaseModel() {
 		fields = new HashMap<String, Object>(getStructure().length);
 		modelId = lastId++;
+	}
+
+	public void addChild(BaseModel mdl) {
+		if (children == null) {
+			children = new ArrayList<BaseModel>();
+		}
+		children.add(mdl);
+	}
+
+	public List<BaseModel> getChildren() {
+		return children==null?new ArrayList<BaseModel>():children;
 	}
 
 	/**
@@ -139,5 +153,10 @@ public abstract class BaseModel {
 			}
 			fields.put(fld.name, value);
 		}
+	}
+
+	@Override
+	public String toString() {
+		return super.toString()+"//"+fields;
 	}
 }
