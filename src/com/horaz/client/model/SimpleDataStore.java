@@ -72,7 +72,7 @@ public class SimpleDataStore<T extends BaseModel> extends DataStore<T> {
 	 */
 	@Override
 	public List<T> getModels() {
-		return filter(data);
+		return group(filter(data));
 	}
 
 	/**

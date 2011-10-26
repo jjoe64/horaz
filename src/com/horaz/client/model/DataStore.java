@@ -19,7 +19,10 @@
 
 package com.horaz.client.model;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.event.shared.HandlerManager;
@@ -46,6 +49,7 @@ import com.horaz.client.model.events.ModelUpdatedListener;
 public abstract class DataStore<T extends BaseModel> implements HasHandlers {
 	private final HandlerManager handlerManager = new HandlerManager(this);
 	private Filter filter;
+	private String groupBy;
 
 	public DataStore() {}
 
@@ -145,5 +149,29 @@ public abstract class DataStore<T extends BaseModel> implements HasHandlers {
 			if (filter.match(m)) return m;
 		}
 		return null;
+	}
+	
+	public void setGroupBy(String field) {
+		groupBy = field;
+	}
+	
+	public String getGroupBy() {
+		return groupBy;
+	}
+	
+	protected List<T> group(List<T> mdls) {
+		Set<Object> already = new HashSet<Object>();
+		if (groupBy != null && groupBy.length()>0) {
+			List<T> r = new ArrayList<T>();
+			for (T mdl : mdls) {
+				if (!already.contains(mdl.getField(groupBy))) {
+					r.add(mdl);
+					already.add(mdl.getField(groupBy));
+				}
+			}
+			return r;
+		} else {
+			return mdls;
+		}
 	}
 }
