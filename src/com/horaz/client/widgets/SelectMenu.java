@@ -20,7 +20,9 @@
 package com.horaz.client.widgets;
 
 import com.google.gwt.dom.client.Element;
+import com.google.gwt.dom.client.OptionElement;
 import com.google.gwt.dom.client.SelectElement;
+import com.google.gwt.user.client.DOM;
 import com.horaz.client.widgets.events.ChangeListener;
 import com.horaz.client.widgets.events.EventFactory;
 
@@ -34,6 +36,10 @@ public class SelectMenu extends BaseWidget<SelectElement> {
 		$wnd.jQuery(elm).selectmenu('open');
 	}-*/;
 
+	native static private void _refresh(Element elm) /*-{
+		$wnd.jQuery(elm).selectmenu('refresh');
+	}-*/;
+
 	/**
 	 * finds selectmenu element for given id
 	 * the html element has to be a select element
@@ -45,6 +51,13 @@ public class SelectMenu extends BaseWidget<SelectElement> {
 			return (SelectMenu) allWidgetInstances.get(elm);
 		}
 		return new SelectMenu((SelectElement) elm);
+	}
+
+	public static OptionElement createOption(String text, String value) {
+		OptionElement o = OptionElement.as(DOM.createOption());
+		o.setText(text);
+		o.setValue(value);
+		return o;
 	}
 
 	protected SelectMenu(SelectElement elm) {
@@ -64,5 +77,13 @@ public class SelectMenu extends BaseWidget<SelectElement> {
 			throw new IllegalStateException("The attribute data-native-menu=false is missing.");
 		}
 		_open(getElement());
+	}
+
+	public void setOptions(OptionElement[] opts) {
+		getElement().clear();
+		for (OptionElement opt : opts) {
+			getElement().add(opt, null);
+		}
+		_refresh(getElement());
 	}
 }
