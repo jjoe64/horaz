@@ -4,13 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Filter {
-	private Map<String, Object> whereEquals = new HashMap<String, Object>();
-	
-	public Filter whereEquals(String field, Object value) {
-		whereEquals.put(field, value);
-		return this;
-	}
-	
+	private final Map<String, Object> whereEquals = new HashMap<String, Object>();
+
 	public boolean match(BaseModel mdl) {
 		// whereEquals
 		for (Map.Entry<String, Object> entry : whereEquals.entrySet()) {
@@ -18,7 +13,12 @@ public class Filter {
 				return false;
 			}
 		}
-		
+
 		return true;
+	}
+
+	public Filter whereEquals(String field, Object value) {
+		whereEquals.put(field, value);
+		return this;
 	}
 }

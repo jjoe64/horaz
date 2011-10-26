@@ -62,6 +62,11 @@ public abstract class DataStore<T extends BaseModel> implements HasHandlers {
 		fireEvent(new ModelAddedEvent<T>(newModel));
 	}
 
+	public HandlerRegistration addFilterUpdatedListener(FilterUpdatedListener handler) {
+		Type<FilterUpdatedListener> type = FilterUpdatedEvent.getType();
+		return handlerManager.addHandler(type, handler);
+	}
+
 	/**
 	 * register a handler for {@link ModelAddedEvent} Event
 	 * @param handler
@@ -92,9 +97,15 @@ public abstract class DataStore<T extends BaseModel> implements HasHandlers {
 		return handlerManager.addHandler(type, handler);
 	}
 
-	public HandlerRegistration addFilterUpdatedListener(FilterUpdatedListener handler) {
-		Type<FilterUpdatedListener> type = FilterUpdatedEvent.getType();
-		return handlerManager.addHandler(type, handler);
+	public T find(Filter filter) {
+		for (T m : getModels()) {
+			if (filter.match(m)) return m;
+		}
+		return null;
+	}
+
+	public T find(String field, Object value) {
+		return find(new Filter().whereEquals(field, value));
 	}
 
 	@Override
@@ -109,56 +120,19 @@ public abstract class DataStore<T extends BaseModel> implements HasHandlers {
 	 */
 	public abstract T get(int id);
 
+	public Filter getFilter() {
+		return filter;
+	}
+
+	public String getGroupBy() {
+		return groupBy;
+	}
+
 	/**
 	 * @return the current models
 	 */
 	public abstract List<T> getModels();
 
-	/**
-	 * removes the model from the datastore. This fires a {@link ModelRemovedEvent} Event.
-	 * Connected ListViews will automatically removes the list item.
-	 * @param model
-	 */
-	public void remove(T model) {
-		fireEvent(new ModelRemovedEvent<T>(model));
-	}
-
-	/**
-	 * fires {@link ModelUpdatedEvent} event, so that connected listviews updates the list item
-	 * @param saveModel
-	 */
-	public void update(T saveModel) {
-		fireEvent(new ModelUpdatedEvent<T>(saveModel));
-	}
-	
-	public void setFilter(Filter filter) {
-		this.filter = filter;
-		fireEvent(new FilterUpdatedEvent());
-	}
-	
-	public Filter getFilter() {
-		return filter;
-	}
-	
-	public T find(String field, Object value) {
-		return find(new Filter().whereEquals(field, value));
-	}
-	
-	public T find(Filter filter) {
-		for (T m : getModels()) {
-			if (filter.match(m)) return m;
-		}
-		return null;
-	}
-	
-	public void setGroupBy(String field) {
-		groupBy = field;
-	}
-	
-	public String getGroupBy() {
-		return groupBy;
-	}
-	
 	protected List<T> group(List<T> mdls) {
 		Set<Object> already = new HashSet<Object>();
 		if (groupBy != null && groupBy.length()>0) {
@@ -173,5 +147,31 @@ public abstract class DataStore<T extends BaseModel> implements HasHandlers {
 		} else {
 			return mdls;
 		}
+	}
+
+	/**
+	 * removes the model from the datastore. This fires a {@link ModelRemovedEvent} Event.
+	 * Connected ListViews will automatically removes the list item.
+	 * @param model
+	 */
+	public void remove(T model) {
+		fireEvent(new ModelRemovedEvent<T>(model));
+	}
+
+	public void setFilter(Filter filter) {
+		this.filter = filter;
+		fireEvent(new FilterUpdatedEvent());
+	}
+
+	public void setGroupBy(String field) {
+		groupBy = field;
+	}
+
+	/**
+	 * fires {@link ModelUpdatedEvent} event, so that connected listviews updates the list item
+	 * @param saveModel
+	 */
+	public void update(T saveModel) {
+		fireEvent(new ModelUpdatedEvent<T>(saveModel));
 	}
 }

@@ -49,12 +49,12 @@ public abstract class Page extends BaseWidget<Element> {
 		});
 	}
 
+	public abstract void onCreate();
+
 	/**
 	 * change current page, show this
 	 */
 	public void show() {
 		PageManager.changePage(this);
 	}
-	
-	public abstract void onCreate();
 }

@@ -30,6 +30,10 @@ import com.horaz.client.widgets.events.EventFactory;
  * @horaz.events change
  */
 public class SelectMenu extends BaseWidget<SelectElement> {
+	private native static void _open(Element elm)/*-{
+		$wnd.jQuery(elm).selectmenu('open');
+	}-*/;
+
 	/**
 	 * finds selectmenu element for given id
 	 * the html element has to be a select element
@@ -46,7 +50,11 @@ public class SelectMenu extends BaseWidget<SelectElement> {
 	protected SelectMenu(SelectElement elm) {
 		super(elm);
 	}
-	
+
+	public void addChangeListener(ChangeListener changeListener) {
+		EventFactory.bindEventHandler(getElement(), "change", changeListener);
+	}
+
 	/**
 	 * opens the selectmenu. This is only working if the property data-native-menu=false is set.
 	 * @throws IllegalStateException if data-native-menu is not false
@@ -56,13 +64,5 @@ public class SelectMenu extends BaseWidget<SelectElement> {
 			throw new IllegalStateException("The attribute data-native-menu=false is missing.");
 		}
 		_open(getElement());
-	}
-	
-	private native static void _open(Element elm)/*-{
-		$wnd.jQuery(elm).selectmenu('open');
-	}-*/;
-
-	public void addChangeListener(ChangeListener changeListener) {
-		EventFactory.bindEventHandler(getElement(), "change", changeListener);
 	}
 }

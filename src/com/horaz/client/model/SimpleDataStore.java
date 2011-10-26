@@ -57,6 +57,19 @@ public class SimpleDataStore<T extends BaseModel> extends DataStore<T> {
 		super.add(newModel);
 	}
 
+	protected List<T> filter(List<T> input) {
+		if (getFilter() != null) {
+			List<T> output = new ArrayList<T>();
+			for (T m : input) {
+				if (getFilter().match(m)) {
+					output.add(m);
+				}
+			}
+			return output;
+		}
+		return input;
+	}
+
 	/**
 	 * get a model by the unique model id
 	 * @param id model id
@@ -85,18 +98,5 @@ public class SimpleDataStore<T extends BaseModel> extends DataStore<T> {
 		super.remove(model);
 		data.remove(model);
 		dataMap.remove(model.getModelId());
-	}
-	
-	protected List<T> filter(List<T> input) {
-		if (getFilter() != null) {
-			List<T> output = new ArrayList<T>();
-			for (T m : input) {
-				if (getFilter().match(m)) {
-					output.add(m);
-				}
-			}
-			return output;
-		}
-		return input;
 	}
 }
