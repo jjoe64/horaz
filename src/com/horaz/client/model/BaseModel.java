@@ -92,7 +92,7 @@ public abstract class BaseModel {
 	}
 
 	public List<BaseModel> getChildren() {
-		return children==null?new ArrayList<BaseModel>():children;
+		return children==null?new ArrayList<BaseModel>():new ArrayList<BaseModel>(children);
 	}
 
 	/**
