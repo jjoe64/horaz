@@ -19,6 +19,7 @@
 
 package com.horaz.client.widgets.events;
 
+import com.google.gwt.dom.client.AnchorElement;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.LIElement;
 import com.google.gwt.dom.client.UListElement;
@@ -39,9 +40,12 @@ public abstract class ItemClickListener<T extends BaseModel> implements F {
 			Element elm = Element.as(event.getEventTarget());
 			Element ul = null;
 			Element li = null;
-			// find <ul> and <li>
+			Element a = null;
+			// find <ul>, <li> and <a>
 			while (elm.hasParentElement()) {
-				if (elm.getTagName().equals("LI")) {
+				if (elm.getTagName().equals("A")) {
+					a = elm;
+				} else if (elm.getTagName().equals("LI")) {
 					li = elm;
 				} else if (elm.getTagName().equals("UL")) {
 					ul = elm;
@@ -50,12 +54,13 @@ public abstract class ItemClickListener<T extends BaseModel> implements F {
 				elm = elm.getParentElement();
 			}
 
-			if (ul != null & li != null) {
+			if (ul != null && li != null) {
 				ListView<T> lv = ListView.byElement((UListElement) ul);
+				AnchorElement aElm = AnchorElement.as(a);
 				if (lv.getDataStore() == null) {
-					onItemClick(event, null);
+					onItemClick(event, null, aElm);
 				} else {
-					onItemClick(event, lv.getModel((LIElement) li));
+					onItemClick(event, lv.getModel((LIElement) li), aElm);
 				}
 			}
 		}
@@ -65,5 +70,5 @@ public abstract class ItemClickListener<T extends BaseModel> implements F {
 	 * is called when the event occurs.
 	 * @param event
 	 */
-	public abstract void onItemClick(Event event, T item);
+	public abstract void onItemClick(Event event, T item, AnchorElement aElm);
 }
