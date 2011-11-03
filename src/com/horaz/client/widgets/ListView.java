@@ -99,7 +99,7 @@ public class ListView<T extends BaseModel> extends BaseWidget<UListElement> {
 	 * @param itemClickListener
 	 */
 	public void addItemClickListener(ItemClickListener<T> itemClickListener) {
-		EventFactory.delegateEventHandler(getElement(), "li a", "vclick", itemClickListener);
+		EventFactory.delegateEventHandler(getElement(), "li a", "click", itemClickListener);
 	}
 
 	/**
