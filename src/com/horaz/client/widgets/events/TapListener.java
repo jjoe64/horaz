@@ -27,6 +27,7 @@ import com.google.gwt.user.client.Event;
 public abstract class TapListener implements F {
 	@Override
 	public void f(Event event) {
+		event.preventDefault();
 		onTap(event);
 	}
 
