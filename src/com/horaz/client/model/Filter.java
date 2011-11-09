@@ -22,6 +22,15 @@ package com.horaz.client.model;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * abstracts a filter pattern, that can be used for filter {@link DataStore}s.
+ *
+ * {@code
+ * 	ds.setFilter(new Filter().whereEquals("id", 5).whereNotEquals("name", "bus"));
+ * }
+ *
+ * @see http://www.dev-horaz.com/dev-guide/datastore
+ */
 public class Filter {
 	private final Map<String, Object> whereEquals = new HashMap<String, Object>();
 	private final Map<String, Object> whereNotEquals = new HashMap<String, Object>();
@@ -44,11 +53,23 @@ public class Filter {
 		return true;
 	}
 
+	/**
+	 * adds a where-equals clause ("field == value")
+	 * @param field
+	 * @param value
+	 * @return itself
+	 */
 	public Filter whereEquals(String field, Object value) {
 		whereEquals.put(field, value);
 		return this;
 	}
 
+	/**
+	 * adds a where-not-equals clause ("field != value")
+	 * @param field
+	 * @param value
+	 * @return itself
+	 */
 	public Filter whereNotEquals(String field, Object value) {
 		whereNotEquals.put(field, value);
 		return this;

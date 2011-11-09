@@ -43,7 +43,7 @@ import com.horaz.client.model.events.ModelUpdatedListener;
  * use any subclass
  *
  * @param <T> used model class
- * @horaz.events modelAdded, modelRemoved, modelUpdated
+ * @horaz.events modelAdded, modelRemoved, modelUpdated, filterUpdated
  * @see http://www.dev-horaz.com/dev-guide/datastore
  */
 public abstract class DataStore<T extends BaseModel> implements HasHandlers {
