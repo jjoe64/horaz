@@ -32,10 +32,6 @@ import com.horaz.client.widgets.events.EventFactory;
  * @horaz.events change
  */
 public class SelectMenu extends BaseWidget<SelectElement> {
-	private native static void _open(Element elm)/*-{
-		$wnd.jQuery(elm).selectmenu('open');
-	}-*/;
-
 	native static private void _refresh(Element elm) /*-{
 		$wnd.jQuery(elm).selectmenu('refresh');
 	}-*/;
@@ -53,6 +49,13 @@ public class SelectMenu extends BaseWidget<SelectElement> {
 		return new SelectMenu((SelectElement) elm);
 	}
 
+	/**
+	 * generates a new option element. see {@link #setOptions(OptionElement[])}
+	 * how to add options to a select element
+	 * @param text
+	 * @param value
+	 * @return
+	 */
 	public static OptionElement createOption(String text, String value) {
 		OptionElement o = OptionElement.as(DOM.createOption());
 		o.setText(text);
@@ -64,19 +67,12 @@ public class SelectMenu extends BaseWidget<SelectElement> {
 		super(elm);
 	}
 
+	/**
+	 * is called when the value has changed.
+	 * @param changeListener
+	 */
 	public void addChangeListener(ChangeListener changeListener) {
 		EventFactory.bindEventHandler(getElement(), "change", changeListener);
-	}
-
-	/**
-	 * opens the selectmenu. This is only working if the property data-native-menu=false is set.
-	 * @throws IllegalStateException if data-native-menu is not false
-	 */
-	public void open() {
-		if (getElement().getAttribute("data-native-menu") == null || Boolean.parseBoolean(getElement().getAttribute("data-native-menu"))) {
-			throw new IllegalStateException("The attribute data-native-menu=false is missing.");
-		}
-		_open(getElement());
 	}
 
 	public void setOptions(OptionElement[] opts) {

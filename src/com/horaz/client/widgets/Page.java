@@ -49,6 +49,10 @@ public abstract class Page extends BaseWidget<Element> {
 		});
 	}
 
+	/**
+	 * this method is called when the page is beeing initialized.
+	 * Here you should init your widgets etc.
+	 */
 	public abstract void onCreate();
 
 	/**
