@@ -21,6 +21,7 @@ package com.horaz.client.widgets;
 
 import com.google.gwt.dom.client.AnchorElement;
 import com.google.gwt.dom.client.Element;
+import com.google.gwt.user.client.Window.Location;
 import com.horaz.client.widgets.events.EventFactory;
 import com.horaz.client.widgets.events.TapListener;
 
@@ -50,6 +51,8 @@ public class Button extends BaseWidget<AnchorElement> {
 
 	/**
 	 * adds a listener for tap (touch / click) event
+	 * <strong>important</strong>: when you use a tapListener, the anchor must NOT have a href-attribute!
+	 * 	if you want to do a redirect use {@link Location#replace(String)} instead.
 	 * @param tapListener
 	 */
 	public void addTapListener(TapListener tapListener) {

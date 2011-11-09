@@ -34,7 +34,10 @@ import com.google.gwt.dom.client.TextAreaElement;
  * To create a own Model you have to extend the this class.
  * Every Model has to implement the getStructure method.
  * This method must return the fields of the model.
- * At this point we can also set a validation rule for the fields
+ * At this point we can also set a validation rule for the fields.
+ *
+ * Models can have children of models. So you can build trees of models.
+ *
  * @see http://www.dev-horaz.com/dev-guide/create-a-model
  */
 public abstract class BaseModel {
@@ -84,6 +87,10 @@ public abstract class BaseModel {
 		modelId = lastId++;
 	}
 
+	/**
+	 * add a child to a model. so you can build trees of models
+	 * @param mdl
+	 */
 	public void addChild(BaseModel mdl) {
 		if (children == null) {
 			children = new ArrayList<BaseModel>();
@@ -91,6 +98,9 @@ public abstract class BaseModel {
 		children.add(mdl);
 	}
 
+	/**
+	 * @return all children of this model. if there were no children an empty list returns.
+	 */
 	public List<BaseModel> getChildren() {
 		return children==null?new ArrayList<BaseModel>():new ArrayList<BaseModel>(children);
 	}
@@ -120,8 +130,13 @@ public abstract class BaseModel {
 	 */
 	protected abstract ModelField[] getStructure();
 
+	/**
+	 * sets a single field
+	 * @param fieldname
+	 * @param value
+	 */
 	public void setField(String fieldname, Object value) {
-		//TODO validation
+		// TODO validation
 		fields.put(fieldname, value);
 	}
 

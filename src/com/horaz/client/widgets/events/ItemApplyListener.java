@@ -31,6 +31,7 @@ import com.horaz.client.widgets.ListView;
  * there is hook for manipulating the new li-element that was created from the template.
  * This catches the listview applyItem hook. The event will
  * be fired if any li-element was created from template.
+ *
  * @param <T> model class
  */
 public abstract class ItemApplyListener<T extends BaseModel> implements F {
@@ -59,5 +60,12 @@ public abstract class ItemApplyListener<T extends BaseModel> implements F {
 		}
 	}
 
+	/**
+	 * fired when a new list item will be created.
+	 *
+	 * @param event
+	 * @param liElement
+	 * @param model
+	 */
 	public abstract void onItemApply(Event event, LIElement liElement, T model);
 }

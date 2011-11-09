@@ -61,6 +61,10 @@ public abstract class BaseWidget<T extends Element> {
 		return elm;
 	}
 
+	/**
+	 * use only if you know what you are doing!
+	 * @param elm
+	 */
 	protected void setElement(T elm) {
 		this.elm = elm;
 	}

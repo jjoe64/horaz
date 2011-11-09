@@ -30,6 +30,7 @@ import com.horaz.client.widgets.ListView;
 /**
  * when a item was clicked in the listview, this event will be fired.
  * It refers to the corresponding model.
+ *
  * @param <T> model class
  */
 public abstract class ItemClickListener<T extends BaseModel> implements F {
@@ -68,7 +69,10 @@ public abstract class ItemClickListener<T extends BaseModel> implements F {
 
 	/**
 	 * is called when the event occurs.
+	 *
 	 * @param event
+	 * @param model
+	 * @param aElm
 	 */
-	public abstract void onItemClick(Event event, T item, AnchorElement aElm);
+	public abstract void onItemClick(Event event, T model, AnchorElement aElm);
 }

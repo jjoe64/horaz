@@ -75,6 +75,10 @@ public class SelectMenu extends BaseWidget<SelectElement> {
 		EventFactory.bindEventHandler(getElement(), "change", changeListener);
 	}
 
+	/**
+	 * removes all options and adds all the option elements
+	 * @param opts
+	 */
 	public void setOptions(OptionElement[] opts) {
 		getElement().clear();
 		for (OptionElement opt : opts) {
