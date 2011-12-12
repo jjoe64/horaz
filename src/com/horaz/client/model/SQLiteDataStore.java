@@ -35,6 +35,8 @@ public class SQLiteDataStore<T extends BaseModel> extends DataStore<T> {
 	}
 
 	private final Database database;
+	private String table;
+	private SQLiteColumnDef[] tableColumns;
 
 	public SQLiteDataStore(String databaseName, String version, int maxSizeBytes) {
 		if (!Database.isSupported()) {
@@ -43,7 +45,41 @@ public class SQLiteDataStore<T extends BaseModel> extends DataStore<T> {
 		database = Database.openDatabase(databaseName, version, databaseName, maxSizeBytes);
 	}
 
-	public void createTable(final String name, final SQLiteColumnDef[] columns) {
+	@Override
+	public void add(final T newModel) {
+		database.transaction(new TransactionCallback() {
+			@Override
+			public void onTransactionFailure(SQLError error) {
+				throw new IllegalStateException(error.getMessage());
+			}
+
+			@Override
+			public void onTransactionStart(SQLTransaction transaction) {
+				String cols = "";
+				String values = "";
+				Object[] args = new Object[tableColumns.length];
+				int i=0;
+
+				for (SQLiteColumnDef colDef : tableColumns) {
+					// TODO types
+					cols += "," + colDef.columnName;
+					values += ",?";
+					args[i] = newModel.getField(colDef.columnName);
+					i++;
+				}
+				transaction.executeSql("INSERT INTO "+table+" ("+cols.substring(1)+") VALUES ("+values.substring(1)+")", args);
+			}
+
+			@Override
+			public void onTransactionSuccess() {
+				SQLiteDataStore.super.add(newModel);
+			}
+		});
+	}
+
+	public void createTable(String table, SQLiteColumnDef[] columns) {
+		this.table = table;
+		this.tableColumns = columns;
 		database.transaction(new TransactionCallback() {
 			@Override
 			public void onTransactionFailure(SQLError error) {
@@ -53,18 +89,17 @@ public class SQLiteDataStore<T extends BaseModel> extends DataStore<T> {
 			@Override
 			public void onTransactionStart(SQLTransaction tx) {
 				String columnsStr = "modelId INTEGER PRIMARY KEY";
-				for (SQLiteColumnDef col : columns) {
+				for (SQLiteColumnDef col : tableColumns) {
 					columnsStr += "," + col.toSQL();
 				}
-				tx.executeSql("CREATE TABLE IF NOT EXISTS "+name+" ("
+				tx.executeSql("CREATE TABLE IF NOT EXISTS "+SQLiteDataStore.this.table+" ("
 					+ columnsStr +")", null);
 			}
 			@Override
 			public void onTransactionSuccess() {
-				// Proceed when successfully committed...
+				// TODO send event
 			}
 		});
-
 	}
 
 	@Override
