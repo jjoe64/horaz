@@ -3,6 +3,7 @@
   <!-- Inherit the core Web Toolkit stuff.                        -->
   <inherits name='com.google.gwt.user.User'/>
   <inherits name="com.google.gwt.json.JSON" />
+  <inherits name="com.google.code.gwt.database.Html5Database" />
 
   <!-- Specify the paths for translatable code                    -->
   <source path='client'/>

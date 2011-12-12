@@ -1,0 +1,7 @@
+dist/*
+gwt-unitCache/
+test-classes/com/
+war/WEB-INF/deploy/
+war/com.horaz.Horaz.JUnit/
+www-test/
+
