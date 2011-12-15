@@ -6,6 +6,10 @@ import com.google.code.gwt.database.client.Database;
 import com.google.code.gwt.database.client.SQLError;
 import com.google.code.gwt.database.client.SQLTransaction;
 import com.google.code.gwt.database.client.TransactionCallback;
+import com.google.gwt.event.shared.GwtEvent.Type;
+import com.google.gwt.event.shared.HandlerRegistration;
+import com.horaz.client.model.events.TableCreatedEvent;
+import com.horaz.client.model.events.TableCreatedListener;
 
 public class SQLiteDataStore<T extends BaseModel> extends DataStore<T> {
 	public static class SQLiteColumnDef {
@@ -37,6 +41,7 @@ public class SQLiteDataStore<T extends BaseModel> extends DataStore<T> {
 	private final Database database;
 	private String table;
 	private SQLiteColumnDef[] tableColumns;
+	private boolean ready;
 
 	public SQLiteDataStore(String databaseName, String version, int maxSizeBytes) {
 		if (!Database.isSupported()) {
@@ -47,6 +52,8 @@ public class SQLiteDataStore<T extends BaseModel> extends DataStore<T> {
 
 	@Override
 	public void add(final T newModel) {
+		if (!ready) throw new IllegalStateException("Table was not initialized, yet.");
+
 		database.transaction(new TransactionCallback() {
 			@Override
 			public void onTransactionFailure(SQLError error) {
@@ -77,29 +84,9 @@ public class SQLiteDataStore<T extends BaseModel> extends DataStore<T> {
 		});
 	}
 
-	public void createTable(String table, SQLiteColumnDef[] columns) {
-		this.table = table;
-		this.tableColumns = columns;
-		database.transaction(new TransactionCallback() {
-			@Override
-			public void onTransactionFailure(SQLError error) {
-				// TODO handle error...
-				throw new IllegalStateException(error.getMessage());
-			}
-			@Override
-			public void onTransactionStart(SQLTransaction tx) {
-				String columnsStr = "modelId INTEGER PRIMARY KEY";
-				for (SQLiteColumnDef col : tableColumns) {
-					columnsStr += "," + col.toSQL();
-				}
-				tx.executeSql("CREATE TABLE IF NOT EXISTS "+SQLiteDataStore.this.table+" ("
-					+ columnsStr +")", null);
-			}
-			@Override
-			public void onTransactionSuccess() {
-				// TODO send event
-			}
-		});
+	public HandlerRegistration addTableCreatedListener(TableCreatedListener handler) {
+		Type<TableCreatedListener> type = TableCreatedEvent.getType();
+		return handlerManager.addHandler(type, handler);
 	}
 
 	@Override
@@ -116,5 +103,37 @@ public class SQLiteDataStore<T extends BaseModel> extends DataStore<T> {
 	public List<T> getModels() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	public void initTable(String table, SQLiteColumnDef[] columns) {
+		this.table = table;
+		this.tableColumns = columns;
+		database.transaction(new TransactionCallback() {
+			@Override
+			public void onTransactionFailure(SQLError error) {
+				if (error.getMessage().contains("already exists")) {
+					// table already exists
+					//TODO fire event "ready"
+					ready = true;
+				} else {
+					throw new IllegalStateException(error.getMessage());
+				}
+			}
+			@Override
+			public void onTransactionStart(SQLTransaction tx) {
+				String columnsStr = "modelId INTEGER PRIMARY KEY";
+				for (SQLiteColumnDef col : tableColumns) {
+					columnsStr += "," + col.toSQL();
+				}
+				tx.executeSql("CREATE TABLE "+SQLiteDataStore.this.table+" ("
+					+ columnsStr +")", null);
+			}
+			@Override
+			public void onTransactionSuccess() {
+				// fire table created event
+				ready = true;
+				fireEvent(new TableCreatedEvent());
+			}
+		});
 	}
 }

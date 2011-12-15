@@ -1,5 +1,7 @@
 package com.horaz.client.model;
 
+import java.util.Date;
+
 import com.google.code.gwt.database.client.SQLError;
 import com.google.code.gwt.database.client.SQLResultSet;
 import com.google.code.gwt.database.client.SQLTransaction;
@@ -11,6 +13,8 @@ import com.google.gwt.user.client.Timer;
 import com.horaz.client.model.SQLiteDataStore.SQLiteColumnDef;
 import com.horaz.client.model.events.ModelAddedEvent;
 import com.horaz.client.model.events.ModelAddedListener;
+import com.horaz.client.model.events.TableCreatedEvent;
+import com.horaz.client.model.events.TableCreatedListener;
 
 public class SQLiteDataStoreTest extends GWTTestCase {
 	class TestModel extends BaseModel {
@@ -27,6 +31,8 @@ public class SQLiteDataStoreTest extends GWTTestCase {
 		public final native String getName() /*-{ return this.name; }-*/;
 	}
 
+	private boolean eventTableCreatedCatched;
+
 	@Override
 	public String getModuleName() {
 		return "com.horaz.Horaz";
@@ -35,7 +41,7 @@ public class SQLiteDataStoreTest extends GWTTestCase {
 	public void testAdd() {
 		// setup db + table
 		final SQLiteDataStore<TestModel> ds = new SQLiteDataStore<TestModel>("test", "1", 1024*1024);
-		ds.createTable("testTbl", new SQLiteColumnDef[] {
+		ds.initTable("testTbl", new SQLiteColumnDef[] {
 				new SQLiteColumnDef("name", SQLiteColumnDef.Type.TEXT)
 		});
 
@@ -89,9 +95,18 @@ public class SQLiteDataStoreTest extends GWTTestCase {
 		delayTestFinish(500);
 	}
 
-	public void testCreateTable() {
-		final SQLiteDataStore<TestModel> ds = new SQLiteDataStore<TestModel>("test", "1", 1024*1024);
-		ds.createTable("testTbl", new SQLiteColumnDef[] {
+	public void testInitTable() {
+		final SQLiteDataStore<TestModel> ds = new SQLiteDataStore<TestModel>("test"+new Date().getTime(), "1", 1024*1024);
+		// first time, table-created-event must occur
+		eventTableCreatedCatched = false;
+
+		ds.addTableCreatedListener(new TableCreatedListener() {
+			@Override
+			public void onTableCreated(TableCreatedEvent event) {
+				eventTableCreatedCatched = true;
+			}
+		});
+		ds.initTable("testTbl", new SQLiteColumnDef[] {
 				new SQLiteColumnDef("name", SQLiteColumnDef.Type.TEXT)
 		});
 		new Timer() {
@@ -115,6 +130,46 @@ public class SQLiteDataStoreTest extends GWTTestCase {
 							@Override
 							public void onSuccess(SQLTransaction transaction,
 									SQLResultSet<JavaScriptObject> resultSet) {
+								assertTrue(eventTableCreatedCatched);
+								finishTest();
+							}
+						});
+					}
+					@Override
+					public void onTransactionSuccess() {
+					}
+				});
+			}
+		}.schedule(200);
+		delayTestFinish(300);
+
+		// second time, no table-created event
+		eventTableCreatedCatched = false;
+		ds.initTable("testTbl", new SQLiteColumnDef[] {
+				new SQLiteColumnDef("name", SQLiteColumnDef.Type.TEXT)
+		});
+		new Timer() {
+			@Override
+			public void run() {
+				// check table
+				ds.getDatabase().readTransaction(new TransactionCallback() {
+					@Override
+					public void onTransactionFailure(SQLError error) {
+						fail();
+					}
+					@Override
+					public void onTransactionStart(SQLTransaction transaction) {
+						transaction.executeSql("SELECT * FROM testTbl", null, new StatementCallback<JavaScriptObject>() {
+							@Override
+							public boolean onFailure(
+									SQLTransaction transaction, SQLError error) {
+								fail(error.getMessage());
+								return false;
+							}
+							@Override
+							public void onSuccess(SQLTransaction transaction,
+									SQLResultSet<JavaScriptObject> resultSet) {
+								assertFalse(eventTableCreatedCatched);
 								finishTest();
 							}
 						});

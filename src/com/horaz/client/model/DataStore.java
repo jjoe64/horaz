@@ -47,7 +47,7 @@ import com.horaz.client.model.events.ModelUpdatedListener;
  * @see http://www.dev-horaz.com/dev-guide/datastore
  */
 public abstract class DataStore<T extends BaseModel> implements HasHandlers {
-	private final HandlerManager handlerManager = new HandlerManager(this);
+	protected final HandlerManager handlerManager = new HandlerManager(this);
 	private Filter filter;
 	private String groupBy;
 
