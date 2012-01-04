@@ -26,6 +26,7 @@ import com.google.gwt.dom.client.Node;
 import com.google.gwt.dom.client.UListElement;
 import com.horaz.client.model.BaseModel;
 import com.horaz.client.model.DataStore;
+import com.horaz.client.model.SimpleDataStore;
 import com.horaz.client.model.events.FilterUpdatedEvent;
 import com.horaz.client.model.events.FilterUpdatedListener;
 import com.horaz.client.model.events.ModelAddedEvent;
@@ -75,7 +76,7 @@ public class ListView<T extends BaseModel> extends BaseWidget<UListElement> {
 		return byElement((UListElement) getElementById(id));
 	}
 
-	private DataStore<T> dataStore;
+	private SimpleDataStore<T> dataStore;
 
 	protected ListView(UListElement ulElm) {
 		super(ulElm);
@@ -193,7 +194,7 @@ public class ListView<T extends BaseModel> extends BaseWidget<UListElement> {
 	 * The listview will automatically add/edit/remove the listitems, when the datastore changes
 	 * @param dataStore
 	 */
-	public void setDataStore(DataStore<T> dataStore) {
+	public void setDataStore(SimpleDataStore<T> dataStore) {
 		this.dataStore = dataStore;
 
 		// create a list item for each model

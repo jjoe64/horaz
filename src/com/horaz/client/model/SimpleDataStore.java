@@ -36,7 +36,7 @@ import com.horaz.client.model.events.ModelRemovedEvent;
  * @horaz.events modelAdded, modelRemoved, modelUpdated
  * @see http://www.dev-horaz.com/dev-guide/datastore
  */
-public class SimpleDataStore<T extends BaseModel> extends DataStore<T> {
+public class SimpleDataStore<T extends BaseModel> extends DataStore<T> implements SynchronousDataStore<T> {
 	private final Map<Integer, T> dataMap; // for performance
 	private final List<T> data;
 
@@ -54,7 +54,7 @@ public class SimpleDataStore<T extends BaseModel> extends DataStore<T> {
 	public void add(T newModel) {
 		data.add(newModel);
 		dataMap.put(newModel.getModelId(), newModel);
-		super.add(newModel);
+		added(newModel);
 	}
 
 	protected List<T> filter(List<T> input) {
@@ -68,6 +68,67 @@ public class SimpleDataStore<T extends BaseModel> extends DataStore<T> {
 			return output;
 		}
 		return input;
+	}
+
+	/**
+	 * find the first model that matches the given filter
+	 *
+	 * @param filter
+	 * @return first match or null
+	 */
+	@Override
+	public T find(Filter filter) {
+		List<T> r = find(filter, true);
+		if (r.isEmpty()) return null;
+		return r.get(0);
+	}
+
+	private List<T> find(Filter filter, boolean first) {
+		List<T> r = new ArrayList<T>();
+		for (T m : getModels()) {
+			if (filter.match(m)) {
+				r.add(m);
+				if (first) {
+					return r;
+				}
+			}
+		}
+		return r;
+	}
+
+	/**
+	 * find first model that match a given field with the given value
+	 *
+	 * @param field
+	 * @param value
+	 * @return model or null
+	 */
+	@Override
+	public T find(String field, Object value) {
+		return find(new Filter().whereEquals(field, value));
+	}
+
+	/**
+	 * find all model that match the filter
+	 *
+	 * @param filter
+	 * @return list with all models (or empty list)
+	 */
+	@Override
+	public List<T> findAll(Filter filter) {
+		return find(filter, false);
+	}
+
+	/**
+	 * find all model that match the given field with the given value
+	 *
+	 * @param field
+	 * @param value
+	 * @return list with all models (or empty list)
+	 */
+	@Override
+	public List<T> findAll(String field, Object value) {
+		return find(new Filter().whereEquals(field, value), false);
 	}
 
 	/**
@@ -95,8 +156,13 @@ public class SimpleDataStore<T extends BaseModel> extends DataStore<T> {
 	 */
 	@Override
 	public void remove(T model) {
-		super.remove(model);
+		removed(model);
 		data.remove(model);
 		dataMap.remove(model.getModelId());
+	}
+
+	@Override
+	public void update(T saveModel) {
+		updated(saveModel);
 	}
 }

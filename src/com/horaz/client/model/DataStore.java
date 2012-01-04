@@ -59,7 +59,7 @@ public abstract class DataStore<T extends BaseModel> implements HasHandlers {
 	 *
 	 * @param newModel
 	 */
-	public void add(T newModel) {
+	protected void added(T newModel) {
 		fireEvent(new ModelAddedEvent<T>(newModel));
 	}
 
@@ -107,75 +107,10 @@ public abstract class DataStore<T extends BaseModel> implements HasHandlers {
 		return handlerManager.addHandler(type, handler);
 	}
 
-	/**
-	 * find the first model that matches the given filter
-	 *
-	 * @param filter
-	 * @return first match or null
-	 */
-	public T find(Filter filter) {
-		List<T> r = find(filter, true);
-		if (r.isEmpty()) return null;
-		return r.get(0);
-	}
-
-	private List<T> find(Filter filter, boolean first) {
-		List<T> r = new ArrayList<T>();
-		for (T m : getModels()) {
-			if (filter.match(m)) {
-				r.add(m);
-				if (first) {
-					return r;
-				}
-			}
-		}
-		return r;
-	}
-
-	/**
-	 * find first model that match a given field with the given value
-	 *
-	 * @param field
-	 * @param value
-	 * @return model or null
-	 */
-	public T find(String field, Object value) {
-		return find(new Filter().whereEquals(field, value));
-	}
-
-	/**
-	 * find all model that match the filter
-	 *
-	 * @param filter
-	 * @return list with all models (or empty list)
-	 */
-	public List<T> findAll(Filter filter) {
-		return find(filter, false);
-	}
-
-	/**
-	 * find all model that match the given field with the given value
-	 *
-	 * @param field
-	 * @param value
-	 * @return list with all models (or empty list)
-	 */
-	public List<T> findAll(String field, Object value) {
-		return find(new Filter().whereEquals(field, value), false);
-	}
-
 	@Override
 	public void fireEvent(GwtEvent<?> event) {
 		handlerManager.fireEvent(event);
 	}
-
-	/**
-	 * get a model by the unique model id
-	 *
-	 * @param id model id
-	 * @return model or null
-	 */
-	public abstract T get(int id);
 
 	/**
 	 * @return the current filter or null
@@ -190,11 +125,6 @@ public abstract class DataStore<T extends BaseModel> implements HasHandlers {
 	public String getGroupBy() {
 		return groupBy;
 	}
-
-	/**
-	 * @return the current models
-	 */
-	public abstract List<T> getModels();
 
 	/**
 	 * internal grouping feature. groups the incoming models.
@@ -227,7 +157,7 @@ public abstract class DataStore<T extends BaseModel> implements HasHandlers {
 	 *
 	 * @param model
 	 */
-	public void remove(T model) {
+	protected void removed(T model) {
 		fireEvent(new ModelRemovedEvent<T>(model));
 	}
 
@@ -258,7 +188,7 @@ public abstract class DataStore<T extends BaseModel> implements HasHandlers {
 	 * fires {@link ModelUpdatedEvent} event, so that connected listviews updates the list item
 	 * @param saveModel
 	 */
-	public void update(T saveModel) {
+	protected void updated(T saveModel) {
 		fireEvent(new ModelUpdatedEvent<T>(saveModel));
 	}
 }

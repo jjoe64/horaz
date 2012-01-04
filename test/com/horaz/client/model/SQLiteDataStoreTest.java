@@ -95,8 +95,53 @@ public class SQLiteDataStoreTest extends GWTTestCase {
 		delayTestFinish(500);
 	}
 
+	public void testGet() {
+		// setup db + table
+		final SQLiteDataStore<TestModel> ds = new SQLiteDataStore<TestModel>("test", "1", 1024*1024);
+		ds.initTable("testTbl", new SQLiteColumnDef[] {
+				new SQLiteColumnDef("name", SQLiteColumnDef.Type.TEXT)
+		});
+
+		// insert model
+		new Timer() {
+			@Override
+			public void run() {
+				// create model
+				final TestModel mdl = new TestModel();
+				mdl.setField("name", "foo");
+
+				// register hook
+				ds.addModelAddedListener(new ModelAddedListener<SQLiteDataStoreTest.TestModel>() {
+					@Override
+					public void onModelAdded(ModelAddedEvent<TestModel> event) {
+						// get model
+						ds.get(event.getModel().getModelId(), new StatementCallback<JavaScriptObject>() {
+							@Override
+							public boolean onFailure(SQLTransaction transaction, SQLError error) {
+								fail();
+								return false;
+							}
+
+							@Override
+							public void onSuccess(SQLTransaction transaction, SQLResultSet<JavaScriptObject> resultSet) {
+								assertEquals(1, resultSet.getRows().getLength());
+								TestModelJS mdlDB = (TestModelJS) resultSet.getRows().getItem(0);
+								assertEquals(mdl.getField("name"), mdlDB.getName());
+								finishTest();
+							}
+						});
+					}
+				});
+
+				// insert
+				ds.add(mdl);
+			}
+		}.schedule(200);
+		delayTestFinish(500);
+	}
+
 	public void testInitTable() {
-		final SQLiteDataStore<TestModel> ds = new SQLiteDataStore<TestModel>("test"+new Date().getTime(), "1", 1024*1024);
+		final SQLiteDataStore<TestModel> ds = new SQLiteDataStore<TestModel>("testInit"+new Date().getTime(), "1", 1024*1024);
 		// first time, table-created-event must occur
 		eventTableCreatedCatched = false;
 

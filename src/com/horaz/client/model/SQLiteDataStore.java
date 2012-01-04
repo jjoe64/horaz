@@ -1,17 +1,17 @@
 package com.horaz.client.model;
 
-import java.util.List;
-
 import com.google.code.gwt.database.client.Database;
 import com.google.code.gwt.database.client.SQLError;
 import com.google.code.gwt.database.client.SQLTransaction;
+import com.google.code.gwt.database.client.StatementCallback;
 import com.google.code.gwt.database.client.TransactionCallback;
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.shared.GwtEvent.Type;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.horaz.client.model.events.TableCreatedEvent;
 import com.horaz.client.model.events.TableCreatedListener;
 
-public class SQLiteDataStore<T extends BaseModel> extends DataStore<T> {
+public class SQLiteDataStore<T extends BaseModel> extends DataStore<T> implements AsynchronousDataStore<T> {
 	public static class SQLiteColumnDef {
 		public enum Type {
 			TEXT, NUMERIC, INTEGER, REAL
@@ -79,7 +79,7 @@ public class SQLiteDataStore<T extends BaseModel> extends DataStore<T> {
 
 			@Override
 			public void onTransactionSuccess() {
-				SQLiteDataStore.super.add(newModel);
+				added(newModel);
 			}
 		});
 	}
@@ -90,19 +90,62 @@ public class SQLiteDataStore<T extends BaseModel> extends DataStore<T> {
 	}
 
 	@Override
-	public T get(int id) {
+	public void find(
+			Filter filter,
+			com.horaz.client.model.AsynchronousDataStore.FindCallback<T> callback) {
 		// TODO Auto-generated method stub
-		return null;
+
+	}
+
+	@Override
+	public void find(
+			String field,
+			Object value,
+			com.horaz.client.model.AsynchronousDataStore.FindCallback<T> callback) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void findAll(
+			Filter filter,
+			com.horaz.client.model.AsynchronousDataStore.FindCallback<T> callback) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void findAll(
+			String field,
+			Object value,
+			com.horaz.client.model.AsynchronousDataStore.FindCallback<T> callback) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void get(final int id, final StatementCallback<JavaScriptObject> callback) {
+		if (!ready) throw new IllegalStateException("Table was not initialized, yet.");
+
+		database.readTransaction(new TransactionCallback() {
+			@Override
+			public void onTransactionFailure(SQLError error) {
+				throw new IllegalStateException(error.getMessage());
+			}
+
+			@Override
+			public void onTransactionStart(SQLTransaction transaction) {
+				transaction.executeSql("SELECT * FROM "+table+" WHERE modelId=? LIMIT 1", new Object[] {id}, callback);
+			}
+
+			@Override
+			public void onTransactionSuccess() {
+			}
+		});
 	}
 
 	public Database getDatabase() {
 		return database;
-	}
-
-	@Override
-	public List<T> getModels() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	public void initTable(String table, SQLiteColumnDef[] columns) {
@@ -135,5 +178,17 @@ public class SQLiteDataStore<T extends BaseModel> extends DataStore<T> {
 				fireEvent(new TableCreatedEvent());
 			}
 		});
+	}
+
+	@Override
+	public void remove(T model) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void update(T saveModel) {
+		// TODO Auto-generated method stub
+
 	}
 }
