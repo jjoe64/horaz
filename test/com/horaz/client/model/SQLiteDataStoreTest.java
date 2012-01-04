@@ -40,7 +40,7 @@ public class SQLiteDataStoreTest extends GWTTestCase {
 
 	public void testAdd() {
 		// setup db + table
-		final SQLiteDataStore<TestModel> ds = new SQLiteDataStore<TestModel>("test", "1", 1024*1024);
+		final SQLiteDataStore<TestModel> ds = new SQLiteDataStore<TestModel>("testadd", "1", 1024*1024);
 		ds.initTable("testTbl", new SQLiteColumnDef[] {
 				new SQLiteColumnDef("name", SQLiteColumnDef.Type.TEXT)
 		});
@@ -95,9 +95,59 @@ public class SQLiteDataStoreTest extends GWTTestCase {
 		delayTestFinish(500);
 	}
 
+	public void testFindAll() {
+		// setup db + table
+		final SQLiteDataStore<TestModel> ds = new SQLiteDataStore<TestModel>("testfindall", "1", 1024*1024);
+		ds.initTable("testTbl", new SQLiteColumnDef[] {
+				new SQLiteColumnDef("name", SQLiteColumnDef.Type.TEXT)
+		});
+
+		// insert models
+		new Timer() {
+			@Override
+			public void run() {
+				// create model
+				TestModel mdl = new TestModel();
+				mdl.setField("name", "foo");
+				// insert
+				ds.add(mdl);
+
+				mdl = new TestModel();
+				mdl.setField("name", "bar");
+				// insert
+				ds.add(mdl);
+			}
+		}.schedule(200);
+
+		// find only "bar"
+		new Timer() {
+			@Override
+			public void run() {
+				Filter filter = new Filter().whereEquals("name", "bar");
+				ds.findAll(filter, new StatementCallback<JavaScriptObject>() {
+					@Override
+					public boolean onFailure(SQLTransaction transaction, SQLError error) {
+						fail();
+						return false;
+					}
+
+					@Override
+					public void onSuccess(SQLTransaction transaction, SQLResultSet<JavaScriptObject> resultSet) {
+						assertEquals(1, resultSet.getRows().getLength());
+						TestModelJS mdlDB = (TestModelJS) resultSet.getRows().getItem(0);
+						assertEquals("bar", mdlDB.getName());
+						finishTest();
+					}
+				});
+			}
+		}.schedule(500);
+
+		delayTestFinish(800);
+	}
+
 	public void testGet() {
 		// setup db + table
-		final SQLiteDataStore<TestModel> ds = new SQLiteDataStore<TestModel>("test", "1", 1024*1024);
+		final SQLiteDataStore<TestModel> ds = new SQLiteDataStore<TestModel>("testget", "1", 1024*1024);
 		ds.initTable("testTbl", new SQLiteColumnDef[] {
 				new SQLiteColumnDef("name", SQLiteColumnDef.Type.TEXT)
 		});

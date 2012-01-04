@@ -19,7 +19,9 @@
 
 package com.horaz.client.model;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -34,6 +36,28 @@ import java.util.Map;
 public class Filter {
 	private final Map<String, Object> whereEquals = new HashMap<String, Object>();
 	private final Map<String, Object> whereNotEquals = new HashMap<String, Object>();
+
+	public String getSQLStatement() {
+		StringBuffer sql = new StringBuffer();
+		for (Map.Entry<String, Object> entry : whereEquals.entrySet()) {
+			sql.append("AND " + entry.getKey()+"=? ");
+		}
+
+		// TODO not where
+
+		return sql.substring(4);
+	}
+
+	public Object[] getValues() {
+		List<Object> values = new ArrayList<Object>();
+		for (Map.Entry<String, Object> entry : whereEquals.entrySet()) {
+			values.add(entry.getValue());
+		}
+
+		// TODO not where
+
+		return values.toArray(new Object[values.size()]);
+	}
 
 	public boolean match(BaseModel mdl) {
 		// whereEquals

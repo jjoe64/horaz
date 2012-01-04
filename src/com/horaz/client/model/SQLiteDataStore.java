@@ -92,7 +92,7 @@ public class SQLiteDataStore<T extends BaseModel> extends DataStore<T> implement
 	@Override
 	public void find(
 			Filter filter,
-			com.horaz.client.model.AsynchronousDataStore.FindCallback<T> callback) {
+			StatementCallback<JavaScriptObject> callback) {
 		// TODO Auto-generated method stub
 
 	}
@@ -101,16 +101,30 @@ public class SQLiteDataStore<T extends BaseModel> extends DataStore<T> implement
 	public void find(
 			String field,
 			Object value,
-			com.horaz.client.model.AsynchronousDataStore.FindCallback<T> callback) {
+			StatementCallback<JavaScriptObject> callback) {
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	public void findAll(
-			Filter filter,
-			com.horaz.client.model.AsynchronousDataStore.FindCallback<T> callback) {
-		// TODO Auto-generated method stub
+	public void findAll(final Filter filter, final StatementCallback<JavaScriptObject> callback) {
+		if (!ready) throw new IllegalStateException("Table was not initialized, yet.");
+
+		database.readTransaction(new TransactionCallback() {
+			@Override
+			public void onTransactionFailure(SQLError error) {
+				throw new IllegalStateException(error.getMessage());
+			}
+
+			@Override
+			public void onTransactionStart(SQLTransaction transaction) {
+				transaction.executeSql("SELECT * FROM "+table+" WHERE "+filter.getSQLStatement(), filter.getValues(), callback);
+			}
+
+			@Override
+			public void onTransactionSuccess() {
+			}
+		});
 
 	}
 
@@ -118,7 +132,7 @@ public class SQLiteDataStore<T extends BaseModel> extends DataStore<T> implement
 	public void findAll(
 			String field,
 			Object value,
-			com.horaz.client.model.AsynchronousDataStore.FindCallback<T> callback) {
+			StatementCallback<JavaScriptObject> callback) {
 		// TODO Auto-generated method stub
 
 	}
