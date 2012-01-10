@@ -2,6 +2,7 @@ package com.horaz.client.model;
 
 import com.google.code.gwt.database.client.Database;
 import com.google.code.gwt.database.client.SQLError;
+import com.google.code.gwt.database.client.SQLResultSet;
 import com.google.code.gwt.database.client.SQLTransaction;
 import com.google.code.gwt.database.client.StatementCallback;
 import com.google.code.gwt.database.client.TransactionCallback;
@@ -11,7 +12,7 @@ import com.google.gwt.event.shared.HandlerRegistration;
 import com.horaz.client.model.events.TableCreatedEvent;
 import com.horaz.client.model.events.TableCreatedListener;
 
-public class SQLiteDataStore<T extends BaseModel> extends DataStore<T> implements AsynchronousDataStore<T> {
+public abstract class SQLiteDataStore<T extends BaseModel> extends DataStore<T> implements AsynchronousDataStore<T> {
 	public static class SQLiteColumnDef {
 		public enum Type {
 			TEXT, NUMERIC, INTEGER, REAL
@@ -90,24 +91,7 @@ public class SQLiteDataStore<T extends BaseModel> extends DataStore<T> implement
 	}
 
 	@Override
-	public void find(
-			Filter filter,
-			StatementCallback<JavaScriptObject> callback) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void find(
-			String field,
-			Object value,
-			StatementCallback<JavaScriptObject> callback) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void findAll(final Filter filter, final StatementCallback<JavaScriptObject> callback) {
+	public void findAll(final Filter filter, final FindCallback<T> callback) {
 		if (!ready) throw new IllegalStateException("Table was not initialized, yet.");
 
 		database.readTransaction(new TransactionCallback() {
@@ -118,7 +102,17 @@ public class SQLiteDataStore<T extends BaseModel> extends DataStore<T> implement
 
 			@Override
 			public void onTransactionStart(SQLTransaction transaction) {
-				transaction.executeSql("SELECT * FROM "+table+" WHERE "+filter.getSQLStatement(), filter.getValues(), callback);
+				transaction.executeSql("SELECT * FROM "+table+" WHERE "+filter.getSQLStatement(), filter.getValues(), new StatementCallback<JavaScriptObject>() {
+					@Override
+					public boolean onFailure(SQLTransaction transaction, SQLError error) {
+						throw new IllegalStateException(error.getMessage());
+					}
+
+					@Override
+					public void onSuccess(SQLTransaction transaction, SQLResultSet<JavaScriptObject> resultSet) {
+						callback.onSuccess(new ModelsCollection<T>(SQLiteDataStore.this, resultSet));
+					}
+				});
 			}
 
 			@Override
@@ -129,16 +123,7 @@ public class SQLiteDataStore<T extends BaseModel> extends DataStore<T> implement
 	}
 
 	@Override
-	public void findAll(
-			String field,
-			Object value,
-			StatementCallback<JavaScriptObject> callback) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void get(final int id, final StatementCallback<JavaScriptObject> callback) {
+	public void get(final int id, final FindCallback<T> callback) {
 		if (!ready) throw new IllegalStateException("Table was not initialized, yet.");
 
 		database.readTransaction(new TransactionCallback() {
@@ -149,7 +134,17 @@ public class SQLiteDataStore<T extends BaseModel> extends DataStore<T> implement
 
 			@Override
 			public void onTransactionStart(SQLTransaction transaction) {
-				transaction.executeSql("SELECT * FROM "+table+" WHERE modelId=? LIMIT 1", new Object[] {id}, callback);
+				transaction.executeSql("SELECT * FROM "+table+" WHERE modelId=? LIMIT 1", new Object[] {id}, new StatementCallback<JavaScriptObject>() {
+					@Override
+					public boolean onFailure(SQLTransaction transaction, SQLError error) {
+						throw new IllegalStateException(error.getMessage());
+					}
+
+					@Override
+					public void onSuccess(SQLTransaction transaction, SQLResultSet<JavaScriptObject> resultSet) {
+						callback.onSuccess(new ModelsCollection<T>(SQLiteDataStore.this, resultSet));
+					}
+				});
 			}
 
 			@Override
