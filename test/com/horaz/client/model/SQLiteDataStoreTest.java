@@ -73,6 +73,7 @@ public class SQLiteDataStoreTest extends GWTTestCase {
 	static class TestModelJS extends JavaScriptObject {
 		protected TestModelJS() {
 		}
+		public final native int getModelId() /*-{ return this.modelId; }-*/;
 		public final native String getName() /*-{ return this.name; }-*/;
 	}
 
@@ -122,6 +123,7 @@ public class SQLiteDataStoreTest extends GWTTestCase {
 										assertEquals(1, resultSet.getRows().getLength());
 										TestModelJS mdlDB = (TestModelJS) resultSet.getRows().getItem(0);
 										assertEquals(mdl.getField("name"), mdlDB.getName());
+										assertEquals(1, mdlDB.getModelId());
 										finishTest();
 									}
 								});
@@ -182,11 +184,10 @@ public class SQLiteDataStoreTest extends GWTTestCase {
 			}
 		}.schedule(500);
 
-		delayTestFinish(800);
+		delayTestFinish(80000);
 	}
 
 	public void testGet() {
-		/**
 		// setup db + table
 		final SQLiteDataStore<TestModel> ds = new TestingSQLiteDataStore("testget", "1", 1024*1024);
 		ds.initTable("testTbl", new SQLiteColumnDef[] {
@@ -206,18 +207,13 @@ public class SQLiteDataStoreTest extends GWTTestCase {
 					@Override
 					public void onModelAdded(ModelAddedEvent<TestModel> event) {
 						// get model
-						ds.get(event.getModel().getModelId(), new StatementCallback<JavaScriptObject>() {
+						ds.get(event.getModel().getModelId(), new FindCallback<TestModel>() {
 							@Override
-							public boolean onFailure(SQLTransaction transaction, SQLError error) {
-								fail();
-								return false;
-							}
-
-							@Override
-							public void onSuccess(SQLTransaction transaction, SQLResultSet<JavaScriptObject> resultSet) {
-								assertEquals(1, resultSet.getRows().getLength());
-								TestModelJS mdlDB = (TestModelJS) resultSet.getRows().getItem(0);
-								assertEquals(mdl.getField("name"), mdlDB.getName());
+							public void onSuccess(ModelsCollection<TestModel> results) {
+								Iterator<TestModel> it = results.iterator();
+								assertTrue(it.hasNext());
+								assertEquals("foo", it.next().getField("name"));
+								assertFalse(it.hasNext());
 								finishTest();
 							}
 						});
@@ -229,7 +225,6 @@ public class SQLiteDataStoreTest extends GWTTestCase {
 			}
 		}.schedule(200);
 		delayTestFinish(500);
-		**/
 	}
 
 	public void testInitTable() {

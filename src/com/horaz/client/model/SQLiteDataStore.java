@@ -15,7 +15,7 @@ import com.horaz.client.model.events.TableCreatedListener;
 public abstract class SQLiteDataStore<T extends BaseModel> extends DataStore<T> implements AsynchronousDataStore<T> {
 	public static class SQLiteColumnDef {
 		public enum Type {
-			TEXT, NUMERIC, INTEGER, REAL
+			TEXT, NUMERIC, INTEGER, REAL, _MODEL_ID
 		}
 
 		private final String columnName;
@@ -35,13 +35,14 @@ public abstract class SQLiteDataStore<T extends BaseModel> extends DataStore<T> 
 		}
 
 		public String toSQL() {
-			return columnName+" "+typeName.name();
+			return columnName+" "+(Type._MODEL_ID == typeName ? "INTEGER PRIMARY KEY" : typeName.name());
 		}
 	}
 
 	private final Database database;
 	private String table;
 	private SQLiteColumnDef[] tableColumns;
+	private long lastModelId;
 	private boolean ready;
 
 	public SQLiteDataStore(String databaseName, String version, int maxSizeBytes) {
@@ -54,6 +55,9 @@ public abstract class SQLiteDataStore<T extends BaseModel> extends DataStore<T> 
 	@Override
 	public void add(final T newModel) {
 		if (!ready) throw new IllegalStateException("Table was not initialized, yet.");
+
+		// set model id
+		newModel.setField("modelId", ++lastModelId);
 
 		database.transaction(new TransactionCallback() {
 			@Override
@@ -159,7 +163,12 @@ public abstract class SQLiteDataStore<T extends BaseModel> extends DataStore<T> 
 
 	public void initTable(String table, SQLiteColumnDef[] columns) {
 		this.table = table;
-		this.tableColumns = columns;
+		// add modelId col
+		this.tableColumns = new SQLiteColumnDef[columns.length +1];
+		this.tableColumns[0] = new SQLiteColumnDef("modelId", SQLiteColumnDef.Type._MODEL_ID);
+		for (int i=0; i<columns.length; i++) {
+			this.tableColumns[i+1] = columns[i];
+		}
 		database.transaction(new TransactionCallback() {
 			@Override
 			public void onTransactionFailure(SQLError error) {
@@ -173,20 +182,23 @@ public abstract class SQLiteDataStore<T extends BaseModel> extends DataStore<T> 
 			}
 			@Override
 			public void onTransactionStart(SQLTransaction tx) {
-				String columnsStr = "modelId INTEGER PRIMARY KEY";
+				String columnsStr = "";
 				for (SQLiteColumnDef col : tableColumns) {
 					columnsStr += "," + col.toSQL();
 				}
 				tx.executeSql("CREATE TABLE "+SQLiteDataStore.this.table+" ("
-					+ columnsStr +")", null);
+					+ columnsStr.substring(1) +")", null);
 			}
 			@Override
 			public void onTransactionSuccess() {
 				// fire table created event
+				lastModelId = 0;
 				ready = true;
 				fireEvent(new TableCreatedEvent());
 			}
 		});
+
+		// TODO get last modelId
 	}
 
 	@Override

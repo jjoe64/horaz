@@ -24,16 +24,16 @@ public interface AsynchronousDataStore<T extends BaseModel> {
 		@Override
 		public Iterator<K> iterator() {
 			return new Iterator<K>() {
-				private final int cursor = 0;
+				private int cursor = 0;
 
 				@Override
 				public boolean hasNext() {
-					return cursor > size;
+					return cursor < size;
 				}
 
 				@Override
 				public K next() {
-					return parent.reflectJavaScriptObject(data.getRows().getItem(cursor));
+					return parent.reflectJavaScriptObject(data.getRows().getItem(cursor++));
 				}
 
 				@Override
