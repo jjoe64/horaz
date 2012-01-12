@@ -42,7 +42,7 @@ public abstract class SQLiteDataStore<T extends BaseModel> extends DataStore<T> 
 	private final Database database;
 	private String table;
 	private SQLiteColumnDef[] tableColumns;
-	private long lastModelId;
+	private int lastModelId; // TODO long instead of int
 	private boolean ready;
 
 	public SQLiteDataStore(String databaseName, String version, int maxSizeBytes) {

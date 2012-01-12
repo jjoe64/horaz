@@ -138,8 +138,8 @@ public class SQLiteDataStoreTest extends GWTTestCase {
 				// insert
 				ds.add(mdl);
 			}
-		}.schedule(200);
-		delayTestFinish(500);
+		}.schedule(300);
+		delayTestFinish(800);
 	}
 
 	public void testFindAll() {
@@ -184,7 +184,7 @@ public class SQLiteDataStoreTest extends GWTTestCase {
 			}
 		}.schedule(500);
 
-		delayTestFinish(80000);
+		delayTestFinish(800);
 	}
 
 	public void testGet() {
@@ -223,8 +223,8 @@ public class SQLiteDataStoreTest extends GWTTestCase {
 				// insert
 				ds.add(mdl);
 			}
-		}.schedule(200);
-		delayTestFinish(500);
+		}.schedule(300);
+		delayTestFinish(5000);
 	}
 
 	public void testInitTable() {

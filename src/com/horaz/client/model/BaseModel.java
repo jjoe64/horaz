@@ -84,7 +84,7 @@ public abstract class BaseModel {
 	 */
 	public BaseModel() {
 		fields = new HashMap<String, Object>(getStructure().length);
-		modelId = lastId++;
+		modelId = lastId++; // TODO lastId from Datastore!
 	}
 
 	/**
@@ -119,7 +119,7 @@ public abstract class BaseModel {
 	 * @return unique model id
 	 */
 	public int getModelId() {
-		return modelId;
+		return (Integer) getField("modelId");
 	}
 
 	/**
