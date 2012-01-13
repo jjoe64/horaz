@@ -95,7 +95,21 @@ public abstract class SQLiteDataStore<T extends BaseModel> extends DataStore<T> 
 	}
 
 	@Override
-	public void findAll(final Filter filter, final FindCallback<T> callback) {
+	public void find(Filter filter, FindCallback<T> callback) {
+		findAll(filter, callback, "LIMIT 1");
+	}
+
+	@Override
+	public void find(String field, Object value, FindCallback<T> callback) {
+		findAll(new Filter().whereEquals(field, value), callback, "LIMIT 1");
+	}
+
+	@Override
+	public void findAll(Filter filter, FindCallback<T> callback) {
+		findAll(filter, callback, null);
+	}
+
+	private void findAll(final Filter filter, final FindCallback<T> callback, final String customSql) {
 		if (!ready) throw new IllegalStateException("Table was not initialized, yet.");
 
 		database.readTransaction(new TransactionCallback() {
@@ -106,7 +120,11 @@ public abstract class SQLiteDataStore<T extends BaseModel> extends DataStore<T> 
 
 			@Override
 			public void onTransactionStart(SQLTransaction transaction) {
-				transaction.executeSql("SELECT * FROM "+table+" WHERE "+filter.getSQLStatement(), filter.getValues(), new StatementCallback<JavaScriptObject>() {
+				String sql = "SELECT * FROM "+table+" WHERE "+filter.getSQLStatement();
+				if (customSql != null) {
+					sql += " "+customSql;
+				}
+				transaction.executeSql(sql, filter.getValues(), new StatementCallback<JavaScriptObject>() {
 					@Override
 					public boolean onFailure(SQLTransaction transaction, SQLError error) {
 						throw new IllegalStateException(error.getMessage());
@@ -123,7 +141,11 @@ public abstract class SQLiteDataStore<T extends BaseModel> extends DataStore<T> 
 			public void onTransactionSuccess() {
 			}
 		});
+	}
 
+	@Override
+	public void findAll(String field, Object value, FindCallback<T> callback) {
+		findAll(new Filter().whereEquals(field, value), callback);
 	}
 
 	@Override

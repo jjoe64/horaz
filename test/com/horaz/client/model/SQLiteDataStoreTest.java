@@ -24,33 +24,6 @@ public class SQLiteDataStoreTest extends GWTTestCase {
 		public TestingSQLiteDataStore(String databaseName, String version,
 				int maxSizeBytes) {
 			super(databaseName, version, maxSizeBytes);
-			// TODO Auto-generated constructor stub
-		}
-
-		@Override
-		public void find(
-				Filter filter,
-				com.horaz.client.model.AsynchronousDataStore.FindCallback<TestModel> callback) {
-			// TODO Auto-generated method stub
-
-		}
-
-		@Override
-		public void find(
-				String field,
-				Object value,
-				com.horaz.client.model.AsynchronousDataStore.FindCallback<TestModel> callback) {
-			// TODO Auto-generated method stub
-
-		}
-
-		@Override
-		public void findAll(
-				String field,
-				Object value,
-				com.horaz.client.model.AsynchronousDataStore.FindCallback<TestModel> callback) {
-			// TODO Auto-generated method stub
-
 		}
 
 		@Override
@@ -142,9 +115,139 @@ public class SQLiteDataStoreTest extends GWTTestCase {
 		delayTestFinish(800);
 	}
 
-	public void testFindAll() {
+	public void testFind_whereBar_filter() {
 		// setup db + table
-		final SQLiteDataStore<TestModel> ds = new TestingSQLiteDataStore("testfindall", "1", 1024*1024);
+		final SQLiteDataStore<TestModel> ds = new TestingSQLiteDataStore("testFind_whereBar_filter", "1", 1024*1024);
+		ds.initTable("testTbl", new SQLiteColumnDef[] {
+				new SQLiteColumnDef("name", SQLiteColumnDef.Type.TEXT)
+		});
+
+		// insert models
+		new Timer() {
+			@Override
+			public void run() {
+				// create model
+				TestModel mdl = new TestModel();
+				mdl.setField("name", "foo");
+				// insert
+				ds.add(mdl);
+
+				mdl = new TestModel();
+				mdl.setField("name", "bar");
+				// insert
+				ds.add(mdl);
+
+				mdl = new TestModel();
+				mdl.setField("name", "bar");
+				// insert
+				ds.add(mdl);
+			}
+		}.schedule(200);
+
+		// find only "bar"
+		new Timer() {
+			@Override
+			public void run() {
+				Filter filter = new Filter().whereEquals("name", "bar");
+				ds.find(filter, new FindCallback<TestModel>() {
+					@Override
+					public void onSuccess(ModelsCollection<TestModel> results) {
+						Iterator<TestModel> it = results.iterator();
+						assertTrue(it.hasNext());
+						assertEquals("bar", it.next().getField("name"));
+						assertFalse(it.hasNext());
+						finishTest();
+					}
+				});
+			}
+		}.schedule(500);
+		delayTestFinish(800);
+	}
+
+	public void testFind_whereBar_string() {
+		// setup db + table
+		final SQLiteDataStore<TestModel> ds = new TestingSQLiteDataStore("testFind_whereBar_string", "1", 1024*1024);
+		ds.initTable("testTbl", new SQLiteColumnDef[] {
+				new SQLiteColumnDef("name", SQLiteColumnDef.Type.TEXT)
+		});
+
+		// insert models
+		new Timer() {
+			@Override
+			public void run() {
+				// create model
+				TestModel mdl = new TestModel();
+				mdl.setField("name", "foo");
+				// insert
+				ds.add(mdl);
+
+				mdl = new TestModel();
+				mdl.setField("name", "bar");
+				// insert
+				ds.add(mdl);
+			}
+		}.schedule(200);
+
+		// find only "bar"
+		new Timer() {
+			@Override
+			public void run() {
+				ds.find("name", "bar", new FindCallback<TestModel>() {
+					@Override
+					public void onSuccess(ModelsCollection<TestModel> results) {
+						Iterator<TestModel> it = results.iterator();
+						assertTrue(it.hasNext());
+						assertEquals("bar", it.next().getField("name"));
+						assertFalse(it.hasNext());
+						finishTest();
+					}
+				});
+			}
+		}.schedule(500);
+
+		delayTestFinish(800);
+	}
+
+	public void testFindAll_no_results() {
+		// setup db + table
+		final SQLiteDataStore<TestModel> ds = new TestingSQLiteDataStore("testFindAll_no_results", "1", 1024*1024);
+		ds.initTable("testTbl", new SQLiteColumnDef[] {
+				new SQLiteColumnDef("name", SQLiteColumnDef.Type.TEXT)
+		});
+
+		// insert models
+		new Timer() {
+			@Override
+			public void run() {
+				// create model
+				TestModel mdl = new TestModel();
+				mdl.setField("name", "foo");
+				// insert
+				ds.add(mdl);
+			}
+		}.schedule(200);
+
+		// find only "bar"
+		new Timer() {
+			@Override
+			public void run() {
+				ds.findAll("name", "xbar", new FindCallback<TestModel>() {
+					@Override
+					public void onSuccess(ModelsCollection<TestModel> results) {
+						Iterator<TestModel> it = results.iterator();
+						assertFalse(it.hasNext());
+						finishTest();
+					}
+				});
+			}
+		}.schedule(500);
+
+		delayTestFinish(800);
+	}
+
+	public void testFindAll_whereBar() {
+		// setup db + table
+		final SQLiteDataStore<TestModel> ds = new TestingSQLiteDataStore("testfindall_whereBar", "1", 1024*1024);
 		ds.initTable("testTbl", new SQLiteColumnDef[] {
 				new SQLiteColumnDef("name", SQLiteColumnDef.Type.TEXT)
 		});
@@ -177,6 +280,103 @@ public class SQLiteDataStoreTest extends GWTTestCase {
 						Iterator<TestModel> it = results.iterator();
 						assertTrue(it.hasNext());
 						assertEquals("bar", it.next().getField("name"));
+						assertFalse(it.hasNext());
+						finishTest();
+					}
+				});
+			}
+		}.schedule(500);
+
+		delayTestFinish(800);
+	}
+
+	public void testFindAll_whereBar_string() {
+		// setup db + table
+		final SQLiteDataStore<TestModel> ds = new TestingSQLiteDataStore("testFindAll_whereBar_string", "1", 1024*1024);
+		ds.initTable("testTbl", new SQLiteColumnDef[] {
+				new SQLiteColumnDef("name", SQLiteColumnDef.Type.TEXT)
+		});
+
+		// insert models
+		new Timer() {
+			@Override
+			public void run() {
+				// create model
+				TestModel mdl = new TestModel();
+				mdl.setField("name", "foo");
+				// insert
+				ds.add(mdl);
+
+				mdl = new TestModel();
+				mdl.setField("name", "bar");
+				// insert
+				ds.add(mdl);
+
+				mdl = new TestModel();
+				mdl.setField("name", "bar");
+				// insert
+				ds.add(mdl);
+
+			}
+		}.schedule(200);
+
+		// find only "bar"
+		new Timer() {
+			@Override
+			public void run() {
+				ds.findAll("name", "bar", new FindCallback<TestModel>() {
+					@Override
+					public void onSuccess(ModelsCollection<TestModel> results) {
+						Iterator<TestModel> it = results.iterator();
+						assertTrue(it.hasNext());
+						assertEquals("bar", it.next().getField("name"));
+						assertTrue(it.hasNext());
+						assertEquals("bar", it.next().getField("name"));
+						assertFalse(it.hasNext());
+						finishTest();
+					}
+				});
+			}
+		}.schedule(500);
+
+		delayTestFinish(800);
+	}
+
+	public void testFindAll_whereNotBar() {
+		// setup db + table
+		final SQLiteDataStore<TestModel> ds = new TestingSQLiteDataStore("testFindAll_whereNotBar", "1", 1024*1024);
+		ds.initTable("testTbl", new SQLiteColumnDef[] {
+				new SQLiteColumnDef("name", SQLiteColumnDef.Type.TEXT)
+		});
+
+		// insert models
+		new Timer() {
+			@Override
+			public void run() {
+				// create model
+				TestModel mdl = new TestModel();
+				mdl.setField("name", "foo");
+				// insert
+				ds.add(mdl);
+
+				mdl = new TestModel();
+				mdl.setField("name", "bar");
+				// insert
+				ds.add(mdl);
+			}
+		}.schedule(200);
+
+		// find only "bar"
+		new Timer() {
+			@Override
+			public void run() {
+				Filter filter = new Filter().whereNotEquals("name", "bar");
+				ds.findAll(filter, new FindCallback<TestModel>() {
+					@Override
+					public void onSuccess(ModelsCollection<TestModel> results) {
+						Iterator<TestModel> it = results.iterator();
+						assertTrue(it.hasNext());
+						assertEquals("foo", it.next().getField("name"));
 						assertFalse(it.hasNext());
 						finishTest();
 					}
