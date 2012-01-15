@@ -43,7 +43,10 @@ public class Filter {
 			sql.append("AND " + entry.getKey()+"=? ");
 		}
 
-		// TODO not where
+		// not where
+		for (Map.Entry<String, Object> entry : whereNotEquals.entrySet()) {
+			sql.append("AND " + entry.getKey()+"!=? ");
+		}
 
 		return sql.substring(4);
 	}
@@ -53,8 +56,9 @@ public class Filter {
 		for (Map.Entry<String, Object> entry : whereEquals.entrySet()) {
 			values.add(entry.getValue());
 		}
-
-		// TODO not where
+		for (Map.Entry<String, Object> entry : whereNotEquals.entrySet()) {
+			values.add(entry.getValue());
+		}
 
 		return values.toArray(new Object[values.size()]);
 	}
