@@ -176,7 +176,7 @@ public class ListView<T extends BaseModel> extends BaseWidget<UListElement> {
 	 */
 	private void removeItem(T model) {
 		// TODO for performance with jquery
-		int id = model.getModelId();
+		long id = model.getModelId();
 		for (int i=0; i<getElement().getChildCount(); i++) {
 			Node node = getElement().getChild(i);
 			if (Element.is(node)) {
@@ -248,7 +248,7 @@ public class ListView<T extends BaseModel> extends BaseWidget<UListElement> {
 	private void updateItem(T model) {
 		// find li-element
 		LIElement li = null;
-		int id = model.getModelId();
+		long id = model.getModelId();
 		for (int i=0; i<getElement().getChildCount(); i++) {
 			Node node = getElement().getChild(i);
 			if (Element.is(node)) {

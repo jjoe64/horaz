@@ -37,12 +37,12 @@ import com.horaz.client.model.events.ModelRemovedEvent;
  * @see http://www.dev-horaz.com/dev-guide/datastore
  */
 public class SimpleDataStore<T extends BaseModel> extends DataStore<T> implements SynchronousDataStore<T> {
-	private final Map<Integer, T> dataMap; // for performance
+	private final Map<Long, T> dataMap; // for performance
 	private final List<T> data;
 
 	public SimpleDataStore() {
 		data = new ArrayList<T>();
-		dataMap = new HashMap<Integer, T>();
+		dataMap = new HashMap<Long, T>();
 	}
 
 	/**

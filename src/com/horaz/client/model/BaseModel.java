@@ -118,8 +118,8 @@ public abstract class BaseModel {
 	 * must return a unique model id
 	 * @return unique model id
 	 */
-	public int getModelId() {
-		return (Integer) getField("modelId");
+	public long getModelId() {
+		return (Long) getField("modelId");
 	}
 
 	/**

@@ -42,7 +42,7 @@ public abstract class SQLiteDataStore<T extends BaseModel> extends DataStore<T> 
 	private final Database database;
 	private String table;
 	private SQLiteColumnDef[] tableColumns;
-	private int lastModelId; // TODO long instead of int
+	private long lastModelId;
 	private boolean ready;
 
 	public SQLiteDataStore(String databaseName, String version, int maxSizeBytes) {
@@ -149,7 +149,7 @@ public abstract class SQLiteDataStore<T extends BaseModel> extends DataStore<T> 
 	}
 
 	@Override
-	public void get(final int id, final FindCallback<T> callback) {
+	public void get(final long id, final FindCallback<T> callback) {
 		if (!ready) throw new IllegalStateException("Table was not initialized, yet.");
 
 		database.readTransaction(new TransactionCallback() {

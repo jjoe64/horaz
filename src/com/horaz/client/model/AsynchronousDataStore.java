@@ -86,7 +86,7 @@ public interface AsynchronousDataStore<T extends BaseModel> {
 	 * @param id model id
 	 * @return model or null
 	 */
-	public void get(int id, FindCallback<T> callback);
+	public void get(long id, FindCallback<T> callback);
 
 	public T reflectJavaScriptObject(JavaScriptObject jsObj);
 
