@@ -224,9 +224,35 @@ public abstract class SQLiteDataStore<T extends BaseModel> extends DataStore<T> 
 	}
 
 	@Override
-	public void remove(T model) {
-		// TODO Auto-generated method stub
+	public void remove(final T model) {
+		if (!ready) throw new IllegalStateException("Table was not initialized, yet.");
+		database.transaction(new TransactionCallback() {
+			@Override
+			public void onTransactionFailure(SQLError error) {
+			}
 
+			@Override
+			public void onTransactionStart(SQLTransaction transaction) {
+				String sqlStatement = "DELETE FROM "+table+" WHERE modelId=?";
+				transaction.executeSql(sqlStatement, new Object[] {model.getModelId()}, new StatementCallback<JavaScriptObject>() {
+					@Override
+					public boolean onFailure(SQLTransaction transaction,
+							SQLError error) {
+						throw new IllegalStateException(error.getMessage());
+					}
+					@Override
+					public void onSuccess(SQLTransaction transaction, SQLResultSet<JavaScriptObject> resultSet) {
+						if (resultSet.getRowsAffected() == 1) {
+							removed(model);
+						}
+					}
+				});
+			}
+
+			@Override
+			public void onTransactionSuccess() {
+			}
+		});
 	}
 
 	@Override

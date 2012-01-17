@@ -16,6 +16,8 @@ import com.horaz.client.model.AsynchronousDataStore.ModelsCollection;
 import com.horaz.client.model.SQLiteDataStore.SQLiteColumnDef;
 import com.horaz.client.model.events.ModelAddedEvent;
 import com.horaz.client.model.events.ModelAddedListener;
+import com.horaz.client.model.events.ModelRemovedEvent;
+import com.horaz.client.model.events.ModelRemovedListener;
 import com.horaz.client.model.events.TableCreatedEvent;
 import com.horaz.client.model.events.TableCreatedListener;
 
@@ -463,7 +465,12 @@ public class SQLiteDataStoreTest extends GWTTestCase {
 							public void onSuccess(SQLTransaction transaction,
 									SQLResultSet<JavaScriptObject> resultSet) {
 								assertTrue(eventTableCreatedCatched);
-								finishTest();
+
+								// second time, no table-created event
+								eventTableCreatedCatched = false;
+								ds.initTable("testTbl", new SQLiteColumnDef[] {
+										new SQLiteColumnDef("name", SQLiteColumnDef.Type.TEXT)
+								});
 							}
 						});
 					}
@@ -473,13 +480,7 @@ public class SQLiteDataStoreTest extends GWTTestCase {
 				});
 			}
 		}.schedule(200);
-		delayTestFinish(300);
 
-		// second time, no table-created event
-		eventTableCreatedCatched = false;
-		ds.initTable("testTbl", new SQLiteColumnDef[] {
-				new SQLiteColumnDef("name", SQLiteColumnDef.Type.TEXT)
-		});
 		new Timer() {
 			@Override
 			public void run() {
@@ -511,7 +512,52 @@ public class SQLiteDataStoreTest extends GWTTestCase {
 					}
 				});
 			}
-		}.schedule(200);
-		delayTestFinish(300);
+		}.schedule(500);
+		delayTestFinish(1000);
+	}
+
+	public void testRemove() {
+		// setup db + table
+		final SQLiteDataStore<TestModel> ds = new TestingSQLiteDataStore("testRemove", "1", 1024*1024);
+		ds.initTable("testTbl", new SQLiteColumnDef[] {
+				new SQLiteColumnDef("name", SQLiteColumnDef.Type.TEXT)
+		});
+
+		// insert model
+		final TestModel mdl = new TestModel();
+		new Timer() {
+			@Override
+			public void run() {
+				// create model
+				mdl.setField("name", "foo");
+				ds.add(mdl);
+			}
+		}.schedule(300);
+
+		// remove model
+		new Timer() {
+			@Override
+			public void run() {
+				// register hook
+				ds.addModelRemovedListener(new ModelRemovedListener<SQLiteDataStoreTest.TestModel>() {
+					@Override
+					public void onModelRemoved(ModelRemovedEvent<TestModel> event) {
+						assertEquals(mdl.getModelId(), event.getModel().getModelId());
+						// assert empty datastore
+						ds.find("name", "foo", new FindCallback<SQLiteDataStoreTest.TestModel>() {
+							@Override
+							public void onSuccess(ModelsCollection<TestModel> results) {
+								assertFalse(results.iterator().hasNext());
+								finishTest();
+							}
+						});
+					}
+				});
+
+				// remove
+				ds.remove(mdl);
+			}
+		}.schedule(700);
+		delayTestFinish(5000);
 	}
 }
