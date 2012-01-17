@@ -35,6 +35,7 @@ public class SQLiteDataStoreTest extends GWTTestCase {
 			TestModelJS mdlDB = (TestModelJS) jsObj;
 			TestModel mdl = new TestModel();
 			mdl.setField("name", mdlDB.getName());
+			mdl.setField("modelId", (long) mdlDB.getModelId());
 			return mdl;
 		}
 	}
@@ -100,7 +101,7 @@ public class SQLiteDataStoreTest extends GWTTestCase {
 										assertEquals(1, resultSet.getRows().getLength());
 										TestModelJS mdlDB = (TestModelJS) resultSet.getRows().getItem(0);
 										assertEquals(mdl.getField("name"), mdlDB.getName());
-										assertEquals(1, mdlDB.getModelId());
+										assertEquals(1, (long) mdlDB.getModelId());
 										finishTest();
 									}
 								});
@@ -516,6 +517,57 @@ public class SQLiteDataStoreTest extends GWTTestCase {
 			}
 		}.schedule(500);
 		delayTestFinish(1000);
+	}
+
+	public void testInitTable_lastModelId() {
+		// setup db + table
+		final SQLiteDataStore<TestModel> ds = new TestingSQLiteDataStore("testInitTable_lastModelId", "1", 1024*1024);
+		ds.initTable("testTbl", new SQLiteColumnDef[] {
+				new SQLiteColumnDef("name", SQLiteColumnDef.Type.TEXT)
+		});
+
+		// create and add model
+		new Timer() {
+			@Override
+			public void run() {
+				ds.addModelAddedListener(new ModelAddedListener<SQLiteDataStoreTest.TestModel>() {
+					@Override
+					public void onModelAdded(ModelAddedEvent<TestModel> event) {
+						// modelId == 1
+						assertEquals(1, event.getModel().getModelId());
+					}
+				});
+				ds.add(new TestModel());
+			}
+		}.schedule(300);
+
+		new Timer() {
+			@Override
+			public void run() {
+				// setup new datastore + table
+				final SQLiteDataStore<TestModel> ds2 = new TestingSQLiteDataStore("testInitTable_lastModelId", "1", 1024*1024);
+				ds2.initTable("testTbl", new SQLiteColumnDef[] {
+						new SQLiteColumnDef("name", SQLiteColumnDef.Type.TEXT)
+				});
+
+				new Timer() {
+					@Override
+					public void run() {
+						// create and add model
+						ds2.addModelAddedListener(new ModelAddedListener<SQLiteDataStoreTest.TestModel>() {
+							@Override
+							public void onModelAdded(ModelAddedEvent<TestModel> event) {
+								// modelId == 2
+								assertEquals(2, event.getModel().getModelId());
+								finishTest();
+							}
+						});
+						ds2.add(new TestModel());
+					}
+				}.schedule(300);
+			}
+		}.schedule(800);
+		delayTestFinish(3000);
 	}
 
 	public void testRemove() {

@@ -183,6 +183,37 @@ public abstract class SQLiteDataStore<T extends BaseModel> extends DataStore<T> 
 		return database;
 	}
 
+	protected void getLastModelId() {
+		// get last modelId
+		database.readTransaction(new TransactionCallback() {
+			@Override
+			public void onTransactionFailure(SQLError error) {
+				throw new IllegalStateException(error.getMessage());
+			}
+
+			@Override
+			public void onTransactionStart(SQLTransaction transaction) {
+				transaction.executeSql("SELECT * FROM "+table+" ORDER BY modelId DESC LIMIT 1", new Object[] {}, new StatementCallback<JavaScriptObject>() {
+					@Override
+					public boolean onFailure(SQLTransaction transaction, SQLError error) {
+						throw new IllegalStateException(error.getMessage());
+					}
+					@Override
+					public void onSuccess(SQLTransaction transaction, SQLResultSet<JavaScriptObject> resultSet) {
+						if (resultSet.getRows().getLength() > 0) {
+							lastModelId = reflectJavaScriptObject(resultSet.getRows().getItem(0)).getModelId();
+						}
+						ready = true;
+					}
+				});
+			}
+
+			@Override
+			public void onTransactionSuccess() {
+			}
+		});
+	}
+
 	public void initTable(String table, SQLiteColumnDef[] columns) {
 		this.table = table;
 		// add modelId col
@@ -196,8 +227,7 @@ public abstract class SQLiteDataStore<T extends BaseModel> extends DataStore<T> 
 			public void onTransactionFailure(SQLError error) {
 				if (error.getMessage().contains("already exists")) {
 					// table already exists
-					//TODO fire event "ready"
-					ready = true;
+					getLastModelId();
 				} else {
 					throw new IllegalStateException(error.getMessage());
 				}
@@ -219,8 +249,6 @@ public abstract class SQLiteDataStore<T extends BaseModel> extends DataStore<T> 
 				fireEvent(new TableCreatedEvent());
 			}
 		});
-
-		// TODO get last modelId
 	}
 
 	@Override
