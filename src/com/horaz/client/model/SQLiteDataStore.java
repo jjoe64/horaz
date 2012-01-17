@@ -41,7 +41,7 @@ public abstract class SQLiteDataStore<T extends BaseModel> extends DataStore<T> 
 
 	private final Database database;
 	private String table;
-	private SQLiteColumnDef[] tableColumns;
+	private SQLiteColumnDef[] tableColumns; // includes modelId
 	private long lastModelId;
 	private boolean ready;
 
@@ -256,8 +256,48 @@ public abstract class SQLiteDataStore<T extends BaseModel> extends DataStore<T> 
 	}
 
 	@Override
-	public void update(T saveModel) {
-		// TODO Auto-generated method stub
+	public void update(final T saveModel) {
+		if (!ready) throw new IllegalStateException("Table was not initialized, yet.");
+		database.transaction(new TransactionCallback() {
+			@Override
+			public void onTransactionFailure(SQLError error) {
+				throw new IllegalStateException(error.getMessage());
+			}
 
+			@Override
+			public void onTransactionStart(SQLTransaction transaction) {
+				String set = "";
+				Object[] args = new Object[tableColumns.length]; // exclude modelId
+				int i=0;
+
+				for (SQLiteColumnDef colDef : tableColumns) {
+					// TODO types
+					if (colDef.typeName == SQLiteColumnDef.Type._MODEL_ID) continue;
+
+					set += "," + colDef.columnName+"=?";
+					args[i] = saveModel.getField(colDef.columnName);
+					i++;
+				}
+				args[i] = saveModel.getModelId();
+
+				String sqlStatement = "UPDATE "+table+" SET "+set.substring(1)+" WHERE modelId=?";
+				transaction.executeSql(sqlStatement, args, new StatementCallback<JavaScriptObject>() {
+					@Override
+					public boolean onFailure(SQLTransaction transaction, SQLError error) {
+						throw new IllegalStateException(error.getMessage());
+					}
+					@Override
+					public void onSuccess(SQLTransaction transaction, SQLResultSet<JavaScriptObject> resultSet) {
+						if (resultSet.getRowsAffected() == 1) {
+							updated(saveModel);
+						}
+					}
+				});
+			}
+
+			@Override
+			public void onTransactionSuccess() {
+			}
+		});
 	}
 }

@@ -18,6 +18,8 @@ import com.horaz.client.model.events.ModelAddedEvent;
 import com.horaz.client.model.events.ModelAddedListener;
 import com.horaz.client.model.events.ModelRemovedEvent;
 import com.horaz.client.model.events.ModelRemovedListener;
+import com.horaz.client.model.events.ModelUpdatedEvent;
+import com.horaz.client.model.events.ModelUpdatedListener;
 import com.horaz.client.model.events.TableCreatedEvent;
 import com.horaz.client.model.events.TableCreatedListener;
 
@@ -559,5 +561,54 @@ public class SQLiteDataStoreTest extends GWTTestCase {
 			}
 		}.schedule(700);
 		delayTestFinish(5000);
+	}
+
+	public void testUpdate() {
+		// setup db + table
+		final SQLiteDataStore<TestModel> ds = new TestingSQLiteDataStore("testUpdate", "1", 1024*1024);
+		ds.initTable("testTbl", new SQLiteColumnDef[] {
+				new SQLiteColumnDef("name", SQLiteColumnDef.Type.TEXT)
+		});
+
+		// insert model
+		final TestModel mdl = new TestModel();
+		new Timer() {
+			@Override
+			public void run() {
+				// create model
+				mdl.setField("name", "foo");
+				ds.add(mdl);
+			}
+		}.schedule(300);
+
+		// update
+		new Timer() {
+			@Override
+			public void run() {
+				// register update hook
+				ds.addModelUpdatedListener(new ModelUpdatedListener<SQLiteDataStoreTest.TestModel>() {
+					@Override
+					public void onModelUpdated(ModelUpdatedEvent<TestModel> event) {
+						assertEquals(mdl.getModelId(), event.getModel().getModelId());
+
+						// check from DB
+						ds.get(mdl.getModelId(), new FindCallback<SQLiteDataStoreTest.TestModel>() {
+							@Override
+							public void onSuccess(ModelsCollection<TestModel> results) {
+								Iterator<TestModel> it = results.iterator();
+								assertTrue(it.hasNext());
+								assertEquals("bar", it.next().getField("name"));
+								finishTest();
+							}
+						});
+					}
+				});
+
+				// update
+				mdl.setField("name", "bar");
+				ds.update(mdl);
+			}
+		}.schedule(600);
+		delayTestFinish(1200);
 	}
 }
