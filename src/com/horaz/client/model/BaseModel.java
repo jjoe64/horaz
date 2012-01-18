@@ -75,16 +75,13 @@ public abstract class BaseModel {
 	}
 
 	final private Map<String, Object> fields;
-	final private int modelId;
 	private ArrayList<BaseModel> children;
-	static private int lastId = 0;
 
 	/**
 	 * creates an empty model
 	 */
 	public BaseModel() {
 		fields = new HashMap<String, Object>(getStructure().length);
-		modelId = lastId++; // TODO lastId from Datastore!
 	}
 
 	/**

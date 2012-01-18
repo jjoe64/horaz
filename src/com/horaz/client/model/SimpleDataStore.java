@@ -39,6 +39,7 @@ import com.horaz.client.model.events.ModelRemovedEvent;
 public class SimpleDataStore<T extends BaseModel> extends DataStore<T> implements SynchronousDataStore<T> {
 	private final Map<Long, T> dataMap; // for performance
 	private final List<T> data;
+	private long lastModelId;
 
 	public SimpleDataStore() {
 		data = new ArrayList<T>();
@@ -52,6 +53,8 @@ public class SimpleDataStore<T extends BaseModel> extends DataStore<T> implement
 	 */
 	@Override
 	public void add(T newModel) {
+		newModel.setField("modelId", ++lastModelId);
+
 		data.add(newModel);
 		dataMap.put(newModel.getModelId(), newModel);
 		added(newModel);
