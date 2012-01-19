@@ -28,8 +28,9 @@ import com.google.gwt.dom.client.Element;
 public abstract class BaseWidget<T extends Element> {
 	/**
 	 * maps all created widgets, so that there are no duplications.
+	 * WARNING: USE ONLY IF YOU KNOW WHAT YOU ARE DOING
 	 */
-	static protected Map<Element, BaseWidget<?>> allWidgetInstances = new HashMap<Element, BaseWidget<?>>();
+	public static Map<Element, BaseWidget<?>> allWidgetInstances = new HashMap<Element, BaseWidget<?>>();
 
 	/**
 	 * wrapper for document.getElementById

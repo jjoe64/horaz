@@ -53,30 +53,8 @@ import com.horaz.client.widgets.events.ItemClickListener;
  * @horaz.events itemApply, itemClick
  * @see https://www.horaz-lang.com/dev-guide/listview
  */
-public class ListView<T extends BaseModel> extends BaseWidget<UListElement> {
-	/**
-	 * finds listview element for a given UListElement (html ul element)
-	 * @param <E> model class
-	 * @param elm
-	 * @return listview
-	 */
-	@SuppressWarnings("unchecked")
-	static public <E extends BaseModel> ListView<E> byElement(UListElement elm) {
-		if (allWidgetInstances.get(elm) != null) {
-			return (ListView<E>) allWidgetInstances.get(elm);
-		}
-		return new ListView<E>(elm);
-	}
-
-	/**
-	 * finds listview element for given id
-	 * @param id
-	 */
-	static public <E extends BaseModel> ListView<E> byId(String id) {
-		return byElement((UListElement) getElementById(id));
-	}
-
-	private SimpleDataStore<T> dataStore;
+abstract public class ListView<T extends BaseModel> extends BaseWidget<UListElement> {
+	private DataStore<T> dataStore;
 
 	protected ListView(UListElement ulElm) {
 		super(ulElm);
@@ -103,12 +81,14 @@ public class ListView<T extends BaseModel> extends BaseWidget<UListElement> {
 		EventFactory.delegateEventHandler(getElement(), "li a", "click", itemClickListener);
 	}
 
+	abstract protected void createAllItems();
+
 	/**
 	 * creates a new list item from a model
 	 * notice: after that {@link #refresh()} has to be called.
 	 * @param model
 	 */
-	private void createNewItem(T model) {
+	protected void createNewItem(T model) {
 		String inner = generateItemInnerHTML(model);
 		LIElement newItem = Document.get().createLIElement();
 		newItem.setInnerHTML(inner);
@@ -140,20 +120,6 @@ public class ListView<T extends BaseModel> extends BaseWidget<UListElement> {
 	 */
 	public DataStore<T> getDataStore() {
 		return dataStore;
-	}
-
-	/**
-	 * get the model behind a LI-Element. The li element must have to attribute data-modelid.
-	 * @param el
-	 * @return model or null
-	 * @throws IllegalArgumentException if data-modelid is not set
-	 */
-	public T getModel(LIElement el) {
-		if (el.getAttribute("data-modelid") == null) {
-			throw new IllegalStateException("LI Element needs the attribute data-modelid");
-		}
-		int id = Integer.valueOf(el.getAttribute("data-modelid"));
-		return dataStore.get(id);
 	}
 
 	// TODO place this is basewidget, better implementation
@@ -235,10 +201,9 @@ public class ListView<T extends BaseModel> extends BaseWidget<UListElement> {
 				while (getElement().getChildCount()>0) {
 					getElement().removeChild(getElement().getChild(0));
 				}
+
 				// create a list item for each model
-				for (T model : ListView.this.dataStore.getModels()) {
-					createNewItem(model);
-				}
+				createAllItems();
 
 				refresh();
 			}

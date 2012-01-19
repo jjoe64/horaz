@@ -54,6 +54,7 @@ public abstract class ItemApplyListener<T extends BaseModel> implements F {
 			}
 
 			if (ul != null & li != null) {
+				// TODO model muss irgendwie uebergeben werden
 				ListView<T> lv = ListView.byElement((UListElement) ul);
 				onItemApply(event, (LIElement) li, lv.getModel((LIElement) li));
 			}

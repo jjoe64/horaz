@@ -22,10 +22,11 @@ package com.horaz.client.widgets.events;
 import com.google.gwt.dom.client.AnchorElement;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.LIElement;
-import com.google.gwt.dom.client.UListElement;
 import com.google.gwt.user.client.Event;
 import com.horaz.client.model.BaseModel;
+import com.horaz.client.widgets.BaseWidget;
 import com.horaz.client.widgets.ListView;
+import com.horaz.client.widgets.SynchronousListView;
 
 /**
  * when a item was clicked in the listview, this event will be fired.
@@ -56,13 +57,17 @@ public abstract class ItemClickListener<T extends BaseModel> implements F {
 			}
 
 			if (ul != null && li != null) {
-				ListView<T> lv = ListView.byElement((UListElement) ul);
-				AnchorElement aElm = AnchorElement.as(a);
-				if (lv.getDataStore() == null) {
-					onItemClick(event, null, aElm);
-				} else {
-					onItemClick(event, lv.getModel((LIElement) li), aElm);
+				@SuppressWarnings("unchecked")
+				ListView<T> lv = (ListView<T>) BaseWidget.allWidgetInstances.get(ul);
+				if (lv instanceof SynchronousListView) {
+					AnchorElement aElm = AnchorElement.as(a);
+					if (lv.getDataStore() == null) {
+						onItemClick(event, null, aElm);
+					} else {
+						onItemClick(event, ((SynchronousListView<T>) lv).getModel((LIElement) li), aElm);
+					}
 				}
+				// TODO Async
 			}
 		}
 	}
