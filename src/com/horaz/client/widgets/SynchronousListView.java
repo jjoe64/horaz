@@ -3,6 +3,7 @@ package com.horaz.client.widgets;
 import com.google.gwt.dom.client.LIElement;
 import com.google.gwt.dom.client.UListElement;
 import com.horaz.client.model.BaseModel;
+import com.horaz.client.model.DataStore;
 import com.horaz.client.model.SimpleDataStore;
 
 public class SynchronousListView<T extends BaseModel> extends ListView<T> {
@@ -56,5 +57,12 @@ public class SynchronousListView<T extends BaseModel> extends ListView<T> {
 		}
 		int id = Integer.valueOf(el.getAttribute("data-modelid"));
 		return getDataStore().get(id);
+	}
+
+	@Override
+	public void setDataStore(DataStore<T> dataStore) {
+		super.setDataStore(dataStore);
+		// create a list item for each model
+		createAllItems();
 	}
 }

@@ -26,7 +26,6 @@ import com.google.gwt.dom.client.Node;
 import com.google.gwt.dom.client.UListElement;
 import com.horaz.client.model.BaseModel;
 import com.horaz.client.model.DataStore;
-import com.horaz.client.model.SimpleDataStore;
 import com.horaz.client.model.events.FilterUpdatedEvent;
 import com.horaz.client.model.events.FilterUpdatedListener;
 import com.horaz.client.model.events.ModelAddedEvent;
@@ -160,14 +159,8 @@ abstract public class ListView<T extends BaseModel> extends BaseWidget<UListElem
 	 * The listview will automatically add/edit/remove the listitems, when the datastore changes
 	 * @param dataStore
 	 */
-	public void setDataStore(SimpleDataStore<T> dataStore) {
+	public void setDataStore(DataStore<T> dataStore) {
 		this.dataStore = dataStore;
-
-		// create a list item for each model
-		for (T model : dataStore.getModels()) {
-			createNewItem(model);
-		}
-		refresh();
 
 		// TODO unregister old event handlers
 		// TODO remove dataStore (null)
@@ -177,7 +170,6 @@ abstract public class ListView<T extends BaseModel> extends BaseWidget<UListElem
 			@Override
 			public void onModelAdded(ModelAddedEvent<T> event) {
 				createNewItem(event.getModel());
-				refresh();
 			}
 		});
 		this.dataStore.addModelRemovedListener(new ModelRemovedListener<T>() {

@@ -28,6 +28,8 @@ import com.google.code.gwt.database.client.TransactionCallback;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.shared.GwtEvent.Type;
 import com.google.gwt.event.shared.HandlerRegistration;
+import com.horaz.client.model.events.ReadyEvent;
+import com.horaz.client.model.events.ReadyListener;
 import com.horaz.client.model.events.TableCreatedEvent;
 import com.horaz.client.model.events.TableCreatedListener;
 
@@ -106,6 +108,11 @@ public abstract class SQLiteDataStore<T extends BaseModel> extends DataStore<T> 
 				added(newModel);
 			}
 		});
+	}
+
+	public HandlerRegistration addReadyListener(ReadyListener handler) {
+		Type<ReadyListener> type = ReadyEvent.getType();
+		return handlerManager.addHandler(type, handler);
 	}
 
 	public HandlerRegistration addTableCreatedListener(TableCreatedListener handler) {
@@ -223,6 +230,7 @@ public abstract class SQLiteDataStore<T extends BaseModel> extends DataStore<T> 
 							lastModelId = reflectJavaScriptObject(resultSet.getRows().getItem(0)).getModelId();
 						}
 						ready = true;
+						fireEvent(new ReadyEvent());
 					}
 				});
 			}
@@ -268,6 +276,10 @@ public abstract class SQLiteDataStore<T extends BaseModel> extends DataStore<T> 
 				fireEvent(new TableCreatedEvent());
 			}
 		});
+	}
+
+	public boolean isReady() {
+		return ready;
 	}
 
 	@Override

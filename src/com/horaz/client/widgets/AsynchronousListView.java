@@ -8,7 +8,11 @@ import com.horaz.client.model.AsynchronousDataStore;
 import com.horaz.client.model.AsynchronousDataStore.FindCallback;
 import com.horaz.client.model.AsynchronousDataStore.ModelsCollection;
 import com.horaz.client.model.BaseModel;
+import com.horaz.client.model.DataStore;
 import com.horaz.client.model.Filter;
+import com.horaz.client.model.SQLiteDataStore;
+import com.horaz.client.model.events.ReadyEvent;
+import com.horaz.client.model.events.ReadyListener;
 
 public class AsynchronousListView<T extends BaseModel> extends ListView<T> {
 	/**
@@ -68,4 +72,23 @@ public class AsynchronousListView<T extends BaseModel> extends ListView<T> {
 		asyncDS.get(id, callback);
 	}
 
+	@Override
+	public void setDataStore(DataStore<T> dataStore) {
+		super.setDataStore(dataStore);
+		SQLiteDataStore<T> sqlDS = (SQLiteDataStore<T>) dataStore;
+		sqlDS.addReadyListener(new ReadyListener() {
+			@Override
+			public void onReady(ReadyEvent event) {
+				if (getDataStore() != null) {
+					// create a list item for each model
+					createAllItems();
+				}
+			}
+		});
+
+		if (sqlDS.isReady()) {
+			// create a list item for each model
+			createAllItems();
+		}
+	}
 }
