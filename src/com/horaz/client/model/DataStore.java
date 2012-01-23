@@ -49,7 +49,7 @@ import com.horaz.client.model.events.ModelUpdatedListener;
 public abstract class DataStore<T extends BaseModel> implements HasHandlers {
 	protected final HandlerManager handlerManager = new HandlerManager(this);
 	private Filter filter;
-	private String groupBy;
+	protected String groupBy;
 
 	public DataStore() {}
 

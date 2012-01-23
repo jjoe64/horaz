@@ -153,6 +153,9 @@ public abstract class SQLiteDataStore<T extends BaseModel> extends DataStore<T> 
 			@Override
 			public void onTransactionStart(SQLTransaction transaction) {
 				String sql = "SELECT * FROM "+table+" WHERE "+filter.getSQLStatement();
+				if (groupBy != null) {
+					sql += " GROUP BY "+groupBy;
+				}
 				if (customSql != null) {
 					sql += " "+customSql;
 				}
