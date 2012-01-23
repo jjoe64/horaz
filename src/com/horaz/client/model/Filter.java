@@ -48,6 +48,9 @@ public class Filter {
 			sql.append("AND " + entry.getKey()+"!=? ");
 		}
 
+		if (sql.length() == 0) {
+			return "1=1";
+		}
 		return sql.substring(4);
 	}
 

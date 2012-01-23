@@ -94,10 +94,16 @@ public abstract class SQLiteDataStore<T extends BaseModel> extends DataStore<T> 
 				int i=0;
 
 				for (SQLiteColumnDef colDef : tableColumns) {
-					// TODO types
 					cols += "," + colDef.columnName;
 					values += ",?";
-					args[i] = newModel.getField(colDef.columnName);
+
+					// TODO types
+					Object value = newModel.getField(colDef.columnName);
+					if (value instanceof Boolean) {
+						args[i] = ((Boolean) value)?1:0;
+					} else {
+						args[i] = value;
+					}
 					i++;
 				}
 				transaction.executeSql("INSERT INTO "+table+" ("+cols.substring(1)+") VALUES ("+values.substring(1)+")", args);
@@ -330,11 +336,17 @@ public abstract class SQLiteDataStore<T extends BaseModel> extends DataStore<T> 
 				int i=0;
 
 				for (SQLiteColumnDef colDef : tableColumns) {
-					// TODO types
 					if (colDef.typeName == SQLiteColumnDef.Type._MODEL_ID) continue;
 
 					set += "," + colDef.columnName+"=?";
-					args[i] = saveModel.getField(colDef.columnName);
+
+					// TODO types
+					Object value = saveModel.getField(colDef.columnName);
+					if (value instanceof Boolean) {
+						args[i] = ((Boolean) value)?1:0;
+					} else {
+						args[i] = value;
+					}
 					i++;
 				}
 				args[i] = saveModel.getModelId();
