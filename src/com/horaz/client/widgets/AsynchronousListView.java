@@ -2,7 +2,6 @@ package com.horaz.client.widgets;
 
 import java.util.Iterator;
 
-import com.google.gwt.dom.client.LIElement;
 import com.google.gwt.dom.client.UListElement;
 import com.horaz.client.model.AsynchronousDataStore;
 import com.horaz.client.model.AsynchronousDataStore.FindCallback;
@@ -54,22 +53,6 @@ public class AsynchronousListView<T extends BaseModel> extends ListView<T> {
 				}
 			}
 		});
-	}
-
-	/**
-	 * get the model behind a LI-Element. The li element must have to attribute data-modelid.
-	 * @param el
-	 * @throws IllegalArgumentException if data-modelid is not set
-	 */
-	public void getModel(LIElement el, FindCallback<T> callback) {
-		if (el.getAttribute("data-modelid") == null) {
-			throw new IllegalStateException("LI Element needs the attribute data-modelid");
-		}
-		int id = Integer.valueOf(el.getAttribute("data-modelid"));
-
-		@SuppressWarnings("unchecked")
-		AsynchronousDataStore<T> asyncDS = (AsynchronousDataStore<T>) getDataStore();
-		asyncDS.get(id, callback);
 	}
 
 	@Override

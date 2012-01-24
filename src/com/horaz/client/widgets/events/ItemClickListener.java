@@ -59,15 +59,12 @@ public abstract class ItemClickListener<T extends BaseModel> implements F {
 			if (ul != null && li != null) {
 				@SuppressWarnings("unchecked")
 				ListView<T> lv = (ListView<T>) BaseWidget.allWidgetInstances.get(ul);
-				if (lv instanceof SynchronousListView) {
-					AnchorElement aElm = AnchorElement.as(a);
-					if (lv.getDataStore() == null) {
-						onItemClick(event, null, aElm);
-					} else {
-						onItemClick(event, ((SynchronousListView<T>) lv).getModel((LIElement) li), aElm);
-					}
+				AnchorElement aElm = AnchorElement.as(a);
+				if (lv.getDataStore() == null) {
+					onItemClick(event, null, aElm);
+				} else {
+					onItemClick(event, ((SynchronousListView<T>) lv).getModel((LIElement) li), aElm);
 				}
-				// TODO Async
 			}
 		}
 	}

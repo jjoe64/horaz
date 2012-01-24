@@ -52,6 +52,7 @@ public interface AsynchronousDataStore<T extends BaseModel> {
 
 				@Override
 				public K next() {
+					if (!hasNext()) return null;
 					return parent.reflectJavaScriptObject(data.getRows().getItem(cursor++));
 				}
 

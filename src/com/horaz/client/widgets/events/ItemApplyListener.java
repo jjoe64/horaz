@@ -23,6 +23,8 @@ import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.LIElement;
 import com.google.gwt.user.client.Event;
 import com.horaz.client.model.BaseModel;
+import com.horaz.client.widgets.BaseWidget;
+import com.horaz.client.widgets.ListView;
 
 /**
  * If you have to do some special formatting or layouting on some explicit models,
@@ -52,9 +54,9 @@ public abstract class ItemApplyListener<T extends BaseModel> implements F {
 			}
 
 			if (ul != null & li != null) {
-				// TODO model muss irgendwie uebergeben werden
-				//ListView<T> lv = ListView.byElement((UListElement) ul);
-				//onItemApply(event, (LIElement) li, lv.getModel((LIElement) li));
+				@SuppressWarnings("unchecked")
+				ListView<T> lv = (ListView<T>) BaseWidget.allWidgetInstances.get(ul);
+				onItemApply(event, (LIElement) li, lv.getModel((LIElement) li));
 			}
 		}
 	}

@@ -19,6 +19,9 @@
 
 package com.horaz.client.widgets;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.LIElement;
@@ -54,6 +57,7 @@ import com.horaz.client.widgets.events.ItemClickListener;
  */
 abstract public class ListView<T extends BaseModel> extends BaseWidget<UListElement> {
 	private DataStore<T> dataStore;
+	private final Map<Long, T> modelsCache = new HashMap<Long, T>();
 
 	protected ListView(UListElement ulElm) {
 		super(ulElm);
@@ -92,6 +96,8 @@ abstract public class ListView<T extends BaseModel> extends BaseWidget<UListElem
 		LIElement newItem = Document.get().createLIElement();
 		newItem.setInnerHTML(inner);
 		newItem.setAttribute("data-modelid", String.valueOf(model.getModelId()));
+		// models cache for itemApply
+		modelsCache.put(model.getModelId(), model);
 		getElement().appendChild(newItem);
 	}
 
@@ -119,6 +125,20 @@ abstract public class ListView<T extends BaseModel> extends BaseWidget<UListElem
 	 */
 	public DataStore<T> getDataStore() {
 		return dataStore;
+	}
+
+	/**
+	 * get the model behind a LI-Element. The li element must have to attribute data-modelid.
+	 * @param el
+	 * @return model or null
+	 * @throws IllegalArgumentException if data-modelid is not set
+	 */
+	public T getModel(LIElement el) {
+		if (el.getAttribute("data-modelid") == null) {
+			throw new IllegalStateException("LI Element needs the attribute data-modelid");
+		}
+		int id = Integer.valueOf(el.getAttribute("data-modelid"));
+		return modelsCache.get((long) id);
 	}
 
 	// TODO place this is basewidget, better implementation
