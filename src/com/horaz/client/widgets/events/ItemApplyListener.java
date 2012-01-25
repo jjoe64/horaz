@@ -53,7 +53,7 @@ public abstract class ItemApplyListener<T extends BaseModel> implements F {
 				elm = elm.getParentElement();
 			}
 
-			if (ul != null & li != null) {
+			if (ul != null && li != null) {
 				@SuppressWarnings("unchecked")
 				ListView<T> lv = (ListView<T>) BaseWidget.allWidgetInstances.get(ul);
 				onItemApply(event, (LIElement) li, lv.getModel((LIElement) li));

@@ -51,6 +51,7 @@ public class AsynchronousListView<T extends BaseModel> extends ListView<T> {
 				while (it.hasNext()) {
 					createNewItem(it.next());
 				}
+				_refresh(getElement());
 			}
 		});
 	}

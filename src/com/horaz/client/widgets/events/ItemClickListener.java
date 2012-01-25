@@ -26,7 +26,6 @@ import com.google.gwt.user.client.Event;
 import com.horaz.client.model.BaseModel;
 import com.horaz.client.widgets.BaseWidget;
 import com.horaz.client.widgets.ListView;
-import com.horaz.client.widgets.SynchronousListView;
 
 /**
  * when a item was clicked in the listview, this event will be fired.
@@ -63,7 +62,7 @@ public abstract class ItemClickListener<T extends BaseModel> implements F {
 				if (lv.getDataStore() == null) {
 					onItemClick(event, null, aElm);
 				} else {
-					onItemClick(event, ((SynchronousListView<T>) lv).getModel((LIElement) li), aElm);
+					onItemClick(event, lv.getModel((LIElement) li), aElm);
 				}
 			}
 		}

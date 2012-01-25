@@ -63,7 +63,7 @@ abstract public class ListView<T extends BaseModel> extends BaseWidget<UListElem
 		super(ulElm);
 	}
 
-	native private void _refresh(Element elm) /*-{
+	native protected void _refresh(Element elm) /*-{
 		$wnd.jQuery(elm).listview('refresh');
 	}-*/;
 
