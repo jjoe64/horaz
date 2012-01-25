@@ -76,6 +76,7 @@ public abstract class BaseModel {
 
 	final private Map<String, Object> fields;
 	private ArrayList<BaseModel> children;
+	private boolean hasChildren;
 
 	/**
 	 * creates an empty model
@@ -127,6 +128,10 @@ public abstract class BaseModel {
 	 */
 	protected abstract ModelField[] getStructure();
 
+	public boolean hasChildren() {
+		return hasChildren;
+	}
+
 	/**
 	 * sets a single field
 	 * @param fieldname
@@ -165,6 +170,10 @@ public abstract class BaseModel {
 			}
 			fields.put(fld.name, value);
 		}
+	}
+
+	public void setHasChildren(boolean b) {
+		hasChildren = b;
 	}
 
 	@Override

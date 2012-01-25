@@ -53,7 +53,11 @@ public interface AsynchronousDataStore<T extends BaseModel> {
 				@Override
 				public K next() {
 					if (!hasNext()) return null;
-					return parent.reflectJavaScriptObject(data.getRows().getItem(cursor++));
+					JavaScriptObject jsObj = data.getRows().getItem(cursor++);
+					K mdl = parent.reflectJavaScriptObject(jsObj);
+					// store children count
+					parent.storeChildrenCount(mdl, jsObj);
+					return mdl;
 				}
 
 				@Override
@@ -111,6 +115,8 @@ public interface AsynchronousDataStore<T extends BaseModel> {
 	public T reflectJavaScriptObject(JavaScriptObject jsObj);
 
 	public void remove(T model);
+
+	public void storeChildrenCount(T mdl, JavaScriptObject jsObj);
 
 	public void update(T saveModel);
 }

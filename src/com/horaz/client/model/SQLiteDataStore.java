@@ -34,6 +34,12 @@ import com.horaz.client.model.events.TableCreatedEvent;
 import com.horaz.client.model.events.TableCreatedListener;
 
 public abstract class SQLiteDataStore<T extends BaseModel> extends DataStore<T> implements AsynchronousDataStore<T> {
+	static private class GetCountJS extends JavaScriptObject {
+		protected GetCountJS() {
+		}
+		public final native int getCount() /*-{ return this._count; }-*/;
+	}
+
 	public static class SQLiteColumnDef {
 		public enum Type {
 			TEXT, NUMERIC, INTEGER, REAL, _MODEL_ID
@@ -152,7 +158,13 @@ public abstract class SQLiteDataStore<T extends BaseModel> extends DataStore<T> 
 
 			@Override
 			public void onTransactionStart(SQLTransaction transaction) {
-				String sql = "SELECT * FROM "+table+" WHERE "+filter.getSQLStatement();
+				String sql;
+				if (groupBy != null) {
+					sql = "SELECT *, COUNT(*) AS _count"; // count children
+				} else {
+					sql = "SELECT *";
+				}
+				sql += " FROM "+table+" WHERE "+filter.getSQLStatement();
 				if (groupBy != null) {
 					sql += " GROUP BY "+groupBy;
 				}
@@ -321,6 +333,11 @@ public abstract class SQLiteDataStore<T extends BaseModel> extends DataStore<T> 
 			public void onTransactionSuccess() {
 			}
 		});
+	}
+
+	@Override
+	public void storeChildrenCount(T mdl, JavaScriptObject jsObj) {
+		mdl.setHasChildren(((GetCountJS) jsObj).getCount() > 1);
 	}
 
 	@Override
