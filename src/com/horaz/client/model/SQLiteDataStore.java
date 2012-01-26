@@ -37,7 +37,7 @@ public abstract class SQLiteDataStore<T extends BaseModel> extends DataStore<T> 
 	static private class GetCountJS extends JavaScriptObject {
 		protected GetCountJS() {
 		}
-		public final native int getCount() /*-{ return this._count; }-*/;
+		public final native int getCount() /*-{ return this._count!==undefined ? this._count : 1; }-*/;
 	}
 
 	public static class SQLiteColumnDef {
