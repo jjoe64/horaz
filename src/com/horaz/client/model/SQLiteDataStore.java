@@ -134,20 +134,20 @@ public abstract class SQLiteDataStore<T extends BaseModel> extends DataStore<T> 
 
 	@Override
 	public void find(Filter filter, FindCallback<T> callback) {
-		findAll(filter, callback, "LIMIT 1");
+		findAll(filter, callback, "LIMIT 1", false);
 	}
 
 	@Override
 	public void find(String field, Object value, FindCallback<T> callback) {
-		findAll(new Filter().whereEquals(field, value), callback, "LIMIT 1");
+		findAll(new Filter().whereEquals(field, value), callback, "LIMIT 1", false);
 	}
 
 	@Override
 	public void findAll(Filter filter, FindCallback<T> callback) {
-		findAll(filter, callback, null);
+		findAll(filter, callback, null, true);
 	}
 
-	private void findAll(final Filter filter, final FindCallback<T> callback, final String customSql) {
+	private void findAll(final Filter filter, final FindCallback<T> callback, final String customSql, final boolean useGroupBy) {
 		if (!ready) throw new IllegalStateException("Table was not initialized, yet.");
 
 		database.readTransaction(new TransactionCallback() {
@@ -159,18 +159,19 @@ public abstract class SQLiteDataStore<T extends BaseModel> extends DataStore<T> 
 			@Override
 			public void onTransactionStart(SQLTransaction transaction) {
 				String sql;
-				if (groupBy != null) {
+				if (useGroupBy && groupBy != null) {
 					sql = "SELECT *, COUNT(*) AS _count"; // count children
 				} else {
 					sql = "SELECT *";
 				}
 				sql += " FROM "+table+" WHERE "+filter.getSQLStatement();
-				if (groupBy != null) {
+				if (useGroupBy && groupBy != null) {
 					sql += " GROUP BY "+groupBy;
 				}
 				if (customSql != null) {
 					sql += " "+customSql;
 				}
+				System.out.println(sql);
 				transaction.executeSql(sql, filter.getValues(), new StatementCallback<JavaScriptObject>() {
 					@Override
 					public boolean onFailure(SQLTransaction transaction, SQLError error) {
@@ -232,7 +233,7 @@ public abstract class SQLiteDataStore<T extends BaseModel> extends DataStore<T> 
 			Filter filter = new Filter();
 			filter.whereEquals(groupBy, mdl.getField(groupBy));
 			filter.whereNotEquals("modelId", mdl.getModelId()); // not itself
-			findAll(filter, callback, null);
+			findAll(filter, callback, null, false);
 		} else {
 			throw new IllegalStateException("Model has no children. You have to check for children (BaseModel#hasChildren()) before calling this method.");
 		}
