@@ -144,6 +144,11 @@ public class SimpleDataStore<T extends BaseModel> extends DataStore<T> implement
 		return dataMap.get(id);
 	}
 
+	@Override
+	public List<BaseModel> getChildren(T model) {
+		return model.getChildren();
+	}
+
 	/**
 	 * @return the current models
 	 */

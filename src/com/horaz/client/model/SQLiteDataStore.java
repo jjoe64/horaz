@@ -226,6 +226,18 @@ public abstract class SQLiteDataStore<T extends BaseModel> extends DataStore<T> 
 		});
 	}
 
+	@Override
+	public void getChildren(T mdl, AsynchronousDataStore.FindCallback<T> callback) {
+		if (mdl.hasChildren()) {
+			Filter filter = new Filter();
+			filter.whereEquals(groupBy, mdl.getField(groupBy));
+			filter.whereNotEquals("modelId", mdl.getModelId()); // not itself
+			findAll(filter, callback, null);
+		} else {
+			throw new IllegalStateException("Model has no children. You have to check for children (BaseModel#hasChildren()) before calling this method.");
+		}
+	}
+
 	public Database getDatabase() {
 		return database;
 	}

@@ -65,6 +65,8 @@ public interface SynchronousDataStore<T extends BaseModel> {
 	 */
 	public T get(int id);
 
+	public List<BaseModel> getChildren(T model);
+
 	/**
 	 * @return the current models
 	 */
@@ -73,5 +75,4 @@ public interface SynchronousDataStore<T extends BaseModel> {
 	public void remove(T model);
 
 	public void update(T saveModel);
-
 }

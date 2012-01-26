@@ -112,6 +112,8 @@ public interface AsynchronousDataStore<T extends BaseModel> {
 	 */
 	public void get(long id, FindCallback<T> callback);
 
+	public void getChildren(T mdl, FindCallback<T> callback);
+
 	public T reflectJavaScriptObject(JavaScriptObject jsObj);
 
 	public void remove(T model);
