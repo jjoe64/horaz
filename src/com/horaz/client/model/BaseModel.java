@@ -104,12 +104,12 @@ public abstract class BaseModel {
 	}
 
 	/**
-	 * reads the property for a given field name
+	 * reads the property for a given field name. You can override this method.
 	 * @param fieldname
 	 * @return value
 	 */
 	public Object getField(String fieldname) {
-		return fields.get(fieldname);
+		return getRawField(fieldname);
 	}
 
 	/**
@@ -117,13 +117,22 @@ public abstract class BaseModel {
 	 * @return unique model id
 	 */
 	public long getModelId() {
-		return (Long) getField("modelId");
+		return (Long) getRawField("modelId");
+	}
+
+	final public Object getRawField(String fieldname) {
+		return fields.get(fieldname);
 	}
 
 	/**
 	 * Every model has to implement the getStructure method.
 	 * This method must return the fields of the model.
 	 * At this point we can also set a validation rule for the fields.
+	 *
+	 * This Fields are reserved for Horaz:
+	 *  - modelId
+	 *  - _count
+	 *
 	 * @return array of ModelField. For every field a ModelField.
 	 */
 	protected abstract ModelField[] getStructure();

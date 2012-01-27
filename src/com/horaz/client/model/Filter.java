@@ -69,19 +69,25 @@ public class Filter {
 	public boolean match(BaseModel mdl) {
 		// whereEquals
 		for (Map.Entry<String, Object> entry : whereEquals.entrySet()) {
-			if (!mdl.getField(entry.getKey()).equals(entry.getValue())) {
+			if (!mdl.getRawField(entry.getKey()).equals(entry.getValue())) {
 				return false;
 			}
 		}
 
 		// whereNotEquals
 		for (Map.Entry<String, Object> entry : whereNotEquals.entrySet()) {
-			if (mdl.getField(entry.getKey()).equals(entry.getValue())) {
+			if (mdl.getRawField(entry.getKey()).equals(entry.getValue())) {
 				return false;
 			}
 		}
 
 		return true;
+	}
+
+	public Filter mergeFilter(Filter filter) {
+		whereEquals.putAll(filter.whereEquals);
+		whereNotEquals.putAll(filter.whereNotEquals);
+		return this;
 	}
 
 	/**

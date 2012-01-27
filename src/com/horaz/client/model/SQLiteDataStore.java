@@ -39,6 +39,14 @@ public abstract class SQLiteDataStore<T extends BaseModel> extends DataStore<T> 
 		}
 		public final native int getCount() /*-{ return this._count!==undefined ? this._count : 1; }-*/;
 	}
+	static public class ModelWrapperJS extends JavaScriptObject {
+		protected ModelWrapperJS() {
+		}
+		public final native boolean getFieldBoolean(String field) /*-{ return this[field]==1; }-*/;
+		public final native int getFieldInteger(String field) /*-{ return this[field]; }-*/;
+		public final native String getFieldString(String field) /*-{ return this[field]; }-*/;
+		public final native int getModelId() /*-{ return this.modelId; }-*/;
+	}
 
 	public static class SQLiteColumnDef {
 		public enum Type {
@@ -104,7 +112,7 @@ public abstract class SQLiteDataStore<T extends BaseModel> extends DataStore<T> 
 					values += ",?";
 
 					// TODO types
-					Object value = newModel.getField(colDef.columnName);
+					Object value = newModel.getRawField(colDef.columnName);
 					if (value instanceof Boolean) {
 						args[i] = ((Boolean) value)?1:0;
 					} else {
@@ -147,9 +155,17 @@ public abstract class SQLiteDataStore<T extends BaseModel> extends DataStore<T> 
 		findAll(filter, callback, null, true);
 	}
 
-	private void findAll(final Filter filter, final FindCallback<T> callback, final String customSql, final boolean useGroupBy) {
+	private void findAll(Filter filter, final FindCallback<T> callback, final String customSql, final boolean useGroupBy) {
 		if (!ready) throw new IllegalStateException("Table was not initialized, yet.");
 
+		if (filter == null) {
+			filter = new Filter();
+		}
+		if (this.filter != null) {
+			filter.mergeFilter(this.filter);
+		}
+
+		final Filter fFilter = filter;
 		database.readTransaction(new TransactionCallback() {
 			@Override
 			public void onTransactionFailure(SQLError error) {
@@ -164,7 +180,7 @@ public abstract class SQLiteDataStore<T extends BaseModel> extends DataStore<T> 
 				} else {
 					sql = "SELECT *";
 				}
-				sql += " FROM "+table+" WHERE "+filter.getSQLStatement();
+				sql += " FROM "+table+" WHERE "+fFilter.getSQLStatement();
 				if (useGroupBy && groupBy != null) {
 					sql += " GROUP BY "+groupBy;
 				}
@@ -172,7 +188,7 @@ public abstract class SQLiteDataStore<T extends BaseModel> extends DataStore<T> 
 					sql += " "+customSql;
 				}
 				System.out.println(sql);
-				transaction.executeSql(sql, filter.getValues(), new StatementCallback<JavaScriptObject>() {
+				transaction.executeSql(sql, fFilter.getValues(), new StatementCallback<JavaScriptObject>() {
 					@Override
 					public boolean onFailure(SQLTransaction transaction, SQLError error) {
 						throw new IllegalStateException(error.getMessage());
@@ -231,7 +247,7 @@ public abstract class SQLiteDataStore<T extends BaseModel> extends DataStore<T> 
 	public void getChildren(T mdl, AsynchronousDataStore.FindCallback<T> callback) {
 		if (mdl.hasChildren()) {
 			Filter filter = new Filter();
-			filter.whereEquals(groupBy, mdl.getField(groupBy));
+			filter.whereEquals(groupBy, mdl.getRawField(groupBy));
 			filter.whereNotEquals("modelId", mdl.getModelId()); // not itself
 			findAll(filter, callback, null, false);
 		} else {
@@ -374,7 +390,7 @@ public abstract class SQLiteDataStore<T extends BaseModel> extends DataStore<T> 
 					set += "," + colDef.columnName+"=?";
 
 					// TODO types
-					Object value = saveModel.getField(colDef.columnName);
+					Object value = saveModel.getRawField(colDef.columnName);
 					if (value instanceof Boolean) {
 						args[i] = ((Boolean) value)?1:0;
 					} else {

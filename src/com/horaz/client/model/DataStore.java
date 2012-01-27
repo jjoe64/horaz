@@ -48,7 +48,7 @@ import com.horaz.client.model.events.ModelUpdatedListener;
  */
 public abstract class DataStore<T extends BaseModel> implements HasHandlers {
 	protected final HandlerManager handlerManager = new HandlerManager(this);
-	private Filter filter;
+	protected Filter filter;
 	protected String groupBy;
 
 	public DataStore() {}
@@ -138,11 +138,11 @@ public abstract class DataStore<T extends BaseModel> implements HasHandlers {
 		Map<Object, T> already = new HashMap<Object, T>();
 		if (groupBy != null && groupBy.length()>0) {
 			for (T mdl : mdls) {
-				if (!already.containsKey(mdl.getField(groupBy))) {
-					already.put(mdl.getField(groupBy), mdl);
+				if (!already.containsKey(mdl.getRawField(groupBy))) {
+					already.put(mdl.getRawField(groupBy), mdl);
 				} else {
 					// add as child
-					already.get(mdl.getField(groupBy)).addChild(mdl);
+					already.get(mdl.getRawField(groupBy)).addChild(mdl);
 				}
 			}
 			return new ArrayList<T>(already.values());
