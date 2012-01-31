@@ -80,6 +80,7 @@ public abstract class SQLiteDataStore<T extends BaseModel> extends DataStore<T> 
 	private long lastModelId;
 	private boolean ready;
 	private String joinStatement;
+	private SQLiteDataStore<BaseModel> joinedDataStore;
 
 	public SQLiteDataStore(String databaseName, String version, int maxSizeBytes) {
 		if (!Database.isSupported()) {
@@ -212,7 +213,7 @@ public abstract class SQLiteDataStore<T extends BaseModel> extends DataStore<T> 
 
 					@Override
 					public void onSuccess(SQLTransaction transaction, SQLResultSet<JavaScriptObject> resultSet) {
-						callback.onSuccess(new ModelsCollection<T>(SQLiteDataStore.this, resultSet));
+						callback.onSuccess(new ModelsCollection<T>(SQLiteDataStore.this, joinedDataStore, resultSet));
 					}
 				});
 			}
@@ -248,7 +249,7 @@ public abstract class SQLiteDataStore<T extends BaseModel> extends DataStore<T> 
 
 					@Override
 					public void onSuccess(SQLTransaction transaction, SQLResultSet<JavaScriptObject> resultSet) {
-						callback.onSuccess(new ModelsCollection<T>(SQLiteDataStore.this, resultSet));
+						callback.onSuccess(new ModelsCollection<T>(SQLiteDataStore.this, joinedDataStore, resultSet));
 					}
 				});
 			}
@@ -378,6 +379,11 @@ public abstract class SQLiteDataStore<T extends BaseModel> extends DataStore<T> 
 			public void onTransactionSuccess() {
 			}
 		});
+	}
+
+	public void setJoin(SQLiteDataStore<? extends BaseModel> joinedDataStore, String joinedField) {
+		setJoinStatement(joinedDataStore.table+" ON "+table+"."+joinedField+"="+joinedDataStore.table+"."+joinedField);
+		this.joinedDataStore = (SQLiteDataStore<BaseModel>) joinedDataStore;
 	}
 
 	public void setJoinStatement(String joinStatement) {

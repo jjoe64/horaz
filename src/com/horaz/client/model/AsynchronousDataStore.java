@@ -32,11 +32,13 @@ public interface AsynchronousDataStore<T extends BaseModel> {
 	public class ModelsCollection<K extends BaseModel> implements Iterable<K> {
 		private final SQLResultSet<JavaScriptObject> data;
 		private final AsynchronousDataStore<K> parent;
+		private final AsynchronousDataStore<BaseModel> joinedDataStore;
 		private final int size;
 
-		public ModelsCollection(AsynchronousDataStore<K> parent, SQLResultSet<JavaScriptObject> data) {
+		public ModelsCollection(AsynchronousDataStore<K> parent, AsynchronousDataStore<BaseModel> joinedDataStore, SQLResultSet<JavaScriptObject> data) {
 			this.parent = parent;
 			this.data = data;
+			this.joinedDataStore = joinedDataStore;
 			size = data.getRows().getLength(); // TODO performance: work with sql iterator
 		}
 
@@ -55,6 +57,9 @@ public interface AsynchronousDataStore<T extends BaseModel> {
 					if (!hasNext()) return null;
 					JavaScriptObject jsObj = data.getRows().getItem(cursor++);
 					K mdl = parent.reflectJavaScriptObject(jsObj);
+					if (joinedDataStore != null) {
+						mdl.setJoinedModel(joinedDataStore.reflectJavaScriptObject(jsObj));
+					}
 					// store children count
 					parent.storeChildrenCount(mdl, jsObj);
 					return mdl;

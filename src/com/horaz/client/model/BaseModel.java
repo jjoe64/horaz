@@ -77,6 +77,7 @@ public abstract class BaseModel {
 	final private Map<String, Object> fields;
 	private ArrayList<BaseModel> children;
 	private boolean hasChildren;
+	private BaseModel joinedModel;
 
 	/**
 	 * creates an empty model
@@ -110,6 +111,10 @@ public abstract class BaseModel {
 	 */
 	public Object getField(String fieldname) {
 		return getRawField(fieldname);
+	}
+
+	public BaseModel getJoinedModel() {
+		return joinedModel;
 	}
 
 	/**
@@ -183,6 +188,10 @@ public abstract class BaseModel {
 
 	public void setHasChildren(boolean b) {
 		hasChildren = b;
+	}
+
+	public void setJoinedModel(BaseModel joinedModel) {
+		this.joinedModel = joinedModel;
 	}
 
 	@Override

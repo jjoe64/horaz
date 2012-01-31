@@ -217,7 +217,7 @@ abstract public class ListView<T extends BaseModel> extends BaseWidget<UListElem
 				// create a list item for each model
 				createAllItems();
 
-				refresh();
+				_refresh(getElement());
 			}
 		});
 	}

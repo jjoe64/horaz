@@ -58,21 +58,27 @@ public class AsynchronousListView<T extends BaseModel> extends ListView<T> {
 
 	@Override
 	public void setDataStore(DataStore<T> dataStore) {
+		setDataStore(dataStore, true); // autoload default true
+	}
+
+	public void setDataStore(DataStore<T> dataStore, boolean autoLoad) {
 		super.setDataStore(dataStore);
 		SQLiteDataStore<T> sqlDS = (SQLiteDataStore<T>) dataStore;
-		sqlDS.addReadyListener(new ReadyListener() {
-			@Override
-			public void onReady(ReadyEvent event) {
-				if (getDataStore() != null) {
-					// create a list item for each model
-					createAllItems();
+		if (autoLoad) {
+			sqlDS.addReadyListener(new ReadyListener() {
+				@Override
+				public void onReady(ReadyEvent event) {
+					if (getDataStore() != null) {
+						// create a list item for each model
+						createAllItems();
+					}
 				}
-			}
-		});
+			});
 
-		if (sqlDS.isReady()) {
-			// create a list item for each model
-			createAllItems();
+			if (sqlDS.isReady()) {
+				// create a list item for each model
+				createAllItems();
+			}
 		}
 	}
 }
