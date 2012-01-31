@@ -79,6 +79,7 @@ public abstract class SQLiteDataStore<T extends BaseModel> extends DataStore<T> 
 	private SQLiteColumnDef[] tableColumns; // includes modelId
 	private long lastModelId;
 	private boolean ready;
+	private String joinStatement;
 
 	public SQLiteDataStore(String databaseName, String version, int maxSizeBytes) {
 		if (!Database.isSupported()) {
@@ -175,16 +176,31 @@ public abstract class SQLiteDataStore<T extends BaseModel> extends DataStore<T> 
 			@Override
 			public void onTransactionStart(SQLTransaction transaction) {
 				String sql;
+
+				// select
 				if (useGroupBy && groupBy != null) {
-					sql = "SELECT *, COUNT(*) AS _count"; // count children
+					// count children
+					sql = "SELECT *, COUNT(*) AS _count";
 				} else {
+					//  normal
 					sql = "SELECT *";
 				}
-				sql += " FROM "+table+" WHERE "+fFilter.getSQLStatement();
+				sql += " FROM "+table;
+
+				// join
+				if (joinStatement != null && (!useGroupBy || groupBy == null)) {
+					// normal
+					sql += " JOIN "+joinStatement;
+				}
+
+				// where
+				sql += " WHERE "+fFilter.getSQLStatement(table+".");
 				if (useGroupBy && groupBy != null) {
+					// count children
 					sql += " GROUP BY "+groupBy;
 				}
 				if (customSql != null) {
+					// normal
 					sql += " "+customSql;
 				}
 				System.out.println(sql);
@@ -362,6 +378,10 @@ public abstract class SQLiteDataStore<T extends BaseModel> extends DataStore<T> 
 			public void onTransactionSuccess() {
 			}
 		});
+	}
+
+	public void setJoinStatement(String joinStatement) {
+		this.joinStatement = joinStatement;
 	}
 
 	@Override

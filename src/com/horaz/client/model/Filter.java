@@ -37,15 +37,15 @@ public class Filter {
 	private final Map<String, Object> whereEquals = new HashMap<String, Object>();
 	private final Map<String, Object> whereNotEquals = new HashMap<String, Object>();
 
-	public String getSQLStatement() {
+	public String getSQLStatement(String colPrefix) {
 		StringBuffer sql = new StringBuffer();
 		for (Map.Entry<String, Object> entry : whereEquals.entrySet()) {
-			sql.append("AND " + entry.getKey()+"=? ");
+			sql.append("AND " + colPrefix+entry.getKey()+"=? ");
 		}
 
 		// not where
 		for (Map.Entry<String, Object> entry : whereNotEquals.entrySet()) {
-			sql.append("AND " + entry.getKey()+"!=? ");
+			sql.append("AND " + colPrefix+entry.getKey()+"!=? ");
 		}
 
 		if (sql.length() == 0) {

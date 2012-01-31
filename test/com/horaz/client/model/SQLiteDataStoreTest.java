@@ -55,15 +55,39 @@ public class SQLiteDataStoreTest extends GWTTestCase {
 			TestModel mdl = new TestModel();
 			mdl.setField("name", mdlDB.getName());
 			mdl.setField("modelId", (long) mdlDB.getModelId());
+
+			TestModelXYJS mdlXYDB = (TestModelXYJS) jsObj;
+			mdl.setField("special", mdlXYDB.getSpecial());
 			return mdl;
 		}
 	}
 
+	class TestingSQLiteDataStoreXY extends SQLiteDataStore<TestModelXY> {
+		public TestingSQLiteDataStoreXY(String databaseName, String version,
+				int maxSizeBytes) {
+			super(databaseName, version, maxSizeBytes);
+		}
+
+		@Override
+		public TestModelXY reflectJavaScriptObject(JavaScriptObject jsObj) {
+			return new TestModelXY();
+		}
+	}
+
 	class TestModel extends BaseModel {
+		public TestModel() {
+		}
+
+		public TestModel(int id, String name) {
+			setField("id", id);
+			setField("name", name);
+		}
+
 		@Override
 		protected ModelField[] getStructure() {
 			return new ModelField[] {
-					new ModelField("name")
+					new ModelField("id")
+					, new ModelField("name")
 			};
 		}
 	}
@@ -71,8 +95,37 @@ public class SQLiteDataStoreTest extends GWTTestCase {
 	static class TestModelJS extends JavaScriptObject {
 		protected TestModelJS() {
 		}
+		public final native String getId() /*-{ return this.id; }-*/;
 		public final native int getModelId() /*-{ return this.modelId; }-*/;
 		public final native String getName() /*-{ return this.name; }-*/;
+	}
+
+	class TestModelXY extends BaseModel {
+		public TestModelXY() {
+		}
+
+		public TestModelXY(int id, String nameXY, String special) {
+			setField("id", id);
+			setField("nameXY", nameXY);
+			setField("special", special);
+		}
+
+		@Override
+		protected ModelField[] getStructure() {
+			return new ModelField[] {
+					new ModelField("id")
+					, new ModelField("nameXY")
+					, new ModelField("special")
+			};
+		}
+	}
+
+	static class TestModelXYJS extends JavaScriptObject {
+		protected TestModelXYJS() {
+		}
+		public final native String getId() /*-{ return this.id; }-*/;
+		public final native int getModelId() /*-{ return this.modelId; }-*/;
+		public final native String getSpecial() /*-{ return this.special; }-*/;
 	}
 
 	private boolean eventTableCreatedCatched;
@@ -588,6 +641,51 @@ public class SQLiteDataStoreTest extends GWTTestCase {
 			}
 		}.schedule(800);
 		delayTestFinish(3000);
+	}
+
+	public void testJoin() {
+		// setup table 1
+		final SQLiteDataStore<TestModel> ds = new TestingSQLiteDataStore("testJoin", "1", 1024*1024);
+		ds.addTableCreatedListener(new TableCreatedListener() {
+			@Override
+			public void onTableCreated(TableCreatedEvent event) {
+				ds.add(new TestModel(3, "name1"));
+			}
+		});
+		ds.initTable("testTbl", new SQLiteColumnDef[] {
+				new SQLiteColumnDef("id", SQLiteColumnDef.Type.INTEGER)
+				, new SQLiteColumnDef("name", SQLiteColumnDef.Type.TEXT)
+		});
+
+		// setup table 2
+		final SQLiteDataStore<TestModelXY> ds2 = new TestingSQLiteDataStoreXY("testJoin", "1", 1024*1024);
+		ds2.addTableCreatedListener(new TableCreatedListener() {
+			@Override
+			public void onTableCreated(TableCreatedEvent event) {
+				ds2.add(new TestModelXY(3, "nameXY", "extra"));
+			}
+		});
+		ds2.initTable("testTbl2", new SQLiteColumnDef[] {
+				new SQLiteColumnDef("id", SQLiteColumnDef.Type.INTEGER)
+				, new SQLiteColumnDef("nameXY", SQLiteColumnDef.Type.TEXT)
+				, new SQLiteColumnDef("special", SQLiteColumnDef.Type.TEXT)
+		});
+
+		new Timer() {
+			@Override
+			public void run() {
+				ds.setJoinStatement("testTbl2 ON testTbl.id=testTbl2.id");
+				ds.find("id", 3, new FindCallback<TestModel>() {
+					@Override
+					public void onSuccess(ModelsCollection<TestModel> results) {
+						assertTrue(results.iterator().hasNext());
+						assertEquals("extra", results.iterator().next().getField("special"));
+						finishTest();
+					}
+				});
+			}
+		}.schedule(5000);
+		delayTestFinish(8000);
 	}
 
 	public void testRemove() {
