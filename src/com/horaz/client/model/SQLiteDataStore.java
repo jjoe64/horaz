@@ -43,6 +43,7 @@ public abstract class SQLiteDataStore<T extends BaseModel> extends DataStore<T> 
 		protected ModelWrapperJS() {
 		}
 		public final native boolean getFieldBoolean(String field) /*-{ return this[field]==1; }-*/;
+		public final native float getFieldFloat(String field) /*-{ return parseFloat(this[field]); }-*/;
 		public final native int getFieldInteger(String field) /*-{ return this[field]; }-*/;
 		public final native String getFieldString(String field) /*-{ return this[field]; }-*/;
 		public final native int getModelId() /*-{ return this.modelId; }-*/;
@@ -222,6 +223,17 @@ public abstract class SQLiteDataStore<T extends BaseModel> extends DataStore<T> 
 			public void onTransactionSuccess() {
 			}
 		});
+	}
+
+	public void findAll(Filter filter, String orderBy, String limit, FindCallback<T> callback) {
+		String sql = "";
+		if (orderBy != null) {
+			sql += "ORDER BY "+orderBy+" ";
+		}
+		if (limit != null) {
+			sql += "LIMIT "+limit+" ";
+		}
+		findAll(filter, callback, sql, true);
 	}
 
 	@Override
