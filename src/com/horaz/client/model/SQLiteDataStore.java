@@ -19,6 +19,8 @@
 
 package com.horaz.client.model;
 
+import java.util.Date;
+
 import com.google.code.gwt.database.client.Database;
 import com.google.code.gwt.database.client.SQLError;
 import com.google.code.gwt.database.client.SQLResultSet;
@@ -118,6 +120,8 @@ public abstract class SQLiteDataStore<T extends BaseModel> extends DataStore<T> 
 					Object value = newModel.getRawField(colDef.columnName);
 					if (value instanceof Boolean) {
 						args[i] = ((Boolean) value)?1:0;
+					} else if (value instanceof Date) {
+						args[i] = ((Date) value).getTime()/1000;
 					} else {
 						args[i] = value;
 					}
@@ -431,6 +435,8 @@ public abstract class SQLiteDataStore<T extends BaseModel> extends DataStore<T> 
 					Object value = saveModel.getRawField(colDef.columnName);
 					if (value instanceof Boolean) {
 						args[i] = ((Boolean) value)?1:0;
+					} else if (value instanceof Date) {
+						args[i] = ((Date) value).getTime()/1000;
 					} else {
 						args[i] = value;
 					}
