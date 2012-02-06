@@ -36,6 +36,7 @@ import java.util.Map;
 public class Filter {
 	private final Map<String, Object> whereEquals = new HashMap<String, Object>();
 	private final Map<String, Object> whereNotEquals = new HashMap<String, Object>();
+	private final List<String> where = new ArrayList<String>();
 
 	public String getSQLStatement(String colPrefix) {
 		StringBuffer sql = new StringBuffer();
@@ -46,6 +47,11 @@ public class Filter {
 		// not where
 		for (Map.Entry<String, Object> entry : whereNotEquals.entrySet()) {
 			sql.append("AND " + colPrefix+entry.getKey()+"!=? ");
+		}
+
+		// (custom) where
+		for (String w : where) {
+			sql.append("AND "+w+" ");
 		}
 
 		if (sql.length() == 0) {
@@ -67,6 +73,8 @@ public class Filter {
 	}
 
 	public boolean match(BaseModel mdl) {
+		//TODO refactoring: code in SimpleDataStore
+
 		// whereEquals
 		for (Map.Entry<String, Object> entry : whereEquals.entrySet()) {
 			if (!mdl.getRawField(entry.getKey()).equals(entry.getValue())) {
@@ -87,6 +95,12 @@ public class Filter {
 	public Filter mergeFilter(Filter filter) {
 		whereEquals.putAll(filter.whereEquals);
 		whereNotEquals.putAll(filter.whereNotEquals);
+		where.addAll(filter.where);
+		return this;
+	}
+
+	public Filter where(String string) {
+		where.add(string);
 		return this;
 	}
 
