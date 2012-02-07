@@ -86,4 +86,9 @@ public class SelectMenu extends BaseWidget<SelectElement> {
 		}
 		_refresh(getElement());
 	}
+
+	public void setSelectedIndex(int selectIndex) {
+		getElement().setSelectedIndex(selectIndex);
+		_refresh(getElement());
+	}
 }
