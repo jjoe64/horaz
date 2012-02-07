@@ -71,6 +71,10 @@ public interface AsynchronousDataStore<T extends BaseModel> {
 				}
 			};
 		}
+
+		public int size() {
+			return size;
+		}
 	}
 
 	public void add(T newModel);
