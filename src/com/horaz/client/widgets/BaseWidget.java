@@ -24,6 +24,7 @@ import java.util.Map;
 
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Element;
+import com.google.gwt.dom.client.Style.Unit;
 
 public abstract class BaseWidget<T extends Element> {
 	/**
@@ -62,11 +63,24 @@ public abstract class BaseWidget<T extends Element> {
 		return elm;
 	}
 
+	public void setDimensions(int width, int height) {
+		setWidth(width);
+		setHeight(height);
+	}
+
 	/**
 	 * use only if you know what you are doing!
 	 * @param elm
 	 */
 	protected void setElement(T elm) {
 		this.elm = elm;
+	}
+
+	public void setHeight(int height) {
+		getElement().getStyle().setHeight(height, Unit.PX);
+	}
+
+	public void setWidth(int width) {
+		getElement().getStyle().setWidth(width, Unit.PX);
 	}
 }
