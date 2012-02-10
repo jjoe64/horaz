@@ -1,6 +1,7 @@
 package com.horaz.client.widgets.charting;
 
 import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
 
@@ -13,5 +14,9 @@ public class Series extends JSONObject {
 			a.set(i, data[i]);
 		}
 		put("data", a);
+	}
+
+	public void setYaxis(int n) {
+		put("yaxis", new JSONNumber(n));
 	}
 }

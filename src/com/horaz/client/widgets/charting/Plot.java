@@ -39,7 +39,9 @@ public class Plot extends BaseWidget<DivElement> {
 
 	public void render() {
 		JSONArray a = new JSONArray();
-		a.set(0, series.get(0));
+		for (int i=0; i<series.size(); i++) {
+			a.set(i, series.get(i));
+		}
 		_init(getElement(), a.getJavaScriptObject(), options.getJavaScriptObject());
 	}
 }

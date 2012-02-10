@@ -1,18 +1,23 @@
 package com.horaz.client.widgets.charting;
 
 import com.google.gwt.json.client.JSONArray;
-import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
-import com.google.gwt.json.client.JSONValue;
 
-public class PlotOptions extends JSONObject {
-	private void _setOption(String option, String key, JSONValue value) {
-		JSONObject opt = (JSONObject) get(option);
-		if (opt == null) {
-			opt = new JSONObject();
-			put(option, opt);
+public class PlotOptions extends BaseOptions {
+	public XaxisOptions getXaxisOptions(int idx) {
+		JSONArray xaxes = (JSONArray) get("xaxes");
+		if (xaxes != null) {
+			return (XaxisOptions) xaxes.get(idx);
 		}
-		opt.put(key, value);
+		return null;
+	}
+
+	public YaxisOptions getYaxisOptions(int idx) {
+		JSONArray yaxes = (JSONArray) get("yaxes");
+		if (yaxes != null) {
+			return (YaxisOptions) yaxes.get(idx);
+		}
+		return null;
 	}
 
 	public void setBackgroundColor(String color) {
@@ -35,7 +40,19 @@ public class PlotOptions extends JSONObject {
 		_setOption("legend", "backgroundColor", new JSONString(color));
 	}
 
-	public void setXaxisColor(String color) {
-		_setOption("xaxis", "color", new JSONString(color));
+	public void setXaxes(XaxisOptions... options) {
+		JSONArray xaxes = new JSONArray();
+		for (int i=0; i<options.length; i++) {
+			xaxes.set(i, options[i]);
+		}
+		put("xaxes", xaxes);
+	}
+
+	public void setYaxes(YaxisOptions... options) {
+		JSONArray yaxes = new JSONArray();
+		for (int i=0; i<options.length; i++) {
+			yaxes.set(i, options[i]);
+		}
+		put("yaxes", yaxes);
 	}
 }
