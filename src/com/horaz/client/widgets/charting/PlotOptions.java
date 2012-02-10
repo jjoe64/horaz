@@ -4,6 +4,19 @@ import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONString;
 
 public class PlotOptions extends BaseOptions {
+	public enum LegendPosition {
+		NORTH_EAST("ne")
+		, SOUTH_WEST("sw");
+
+		private final JSONString json;
+		LegendPosition(String json) {
+			this.json = new JSONString(json);
+		}
+		JSONString getJSON() {
+			return json;
+		}
+	}
+
 	public XaxisOptions getXaxisOptions(int idx) {
 		JSONArray xaxes = (JSONArray) get("xaxes");
 		if (xaxes != null) {
@@ -38,6 +51,10 @@ public class PlotOptions extends BaseOptions {
 
 	public void setLegendBackgroundColor(String color) {
 		_setOption("legend", "backgroundColor", new JSONString(color));
+	}
+
+	public void setLegendPosition(LegendPosition pos) {
+		_setOption("legend", "position", pos.getJSON());
 	}
 
 	public void setXaxes(XaxisOptions... options) {

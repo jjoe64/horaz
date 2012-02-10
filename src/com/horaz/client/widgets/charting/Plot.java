@@ -33,6 +33,10 @@ public class Plot extends BaseWidget<DivElement> {
 		this.series.add(series);
 	}
 
+	public void clearData() {
+		series.clear();
+	}
+
 	public PlotOptions getOptions() {
 		return options;
 	}
