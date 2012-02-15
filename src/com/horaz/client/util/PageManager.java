@@ -38,5 +38,13 @@ public class PageManager {
 		_changePage(showPage.getElement());
 	}
 
+	static public native void hidePageLoadingMsg()/*-{
+		$wnd.jQuery.mobile.hidePageLoadingMsg()
+	}-*/;
+
+	static public native void showPageLoadingMsg()/*-{
+		$wnd.jQuery.mobile.showPageLoadingMsg()
+	}-*/;
+
 	private PageManager() {}
 }
