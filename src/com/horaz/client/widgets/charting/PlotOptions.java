@@ -6,7 +6,8 @@ import com.google.gwt.json.client.JSONString;
 public class PlotOptions extends BaseOptions {
 	public enum LegendPosition {
 		NORTH_EAST("ne")
-		, SOUTH_WEST("sw");
+		, SOUTH_WEST("sw")
+		, NORD_WEST("nw");
 
 		private final JSONString json;
 		LegendPosition(String json) {
