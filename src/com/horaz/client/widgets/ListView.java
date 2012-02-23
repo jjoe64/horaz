@@ -172,6 +172,7 @@ abstract public class ListView<T extends BaseModel> extends BaseWidget<UListElem
 				}
 			}
 		}
+		modelsCache.remove(id);
 	}
 
 	/**
@@ -202,12 +203,8 @@ abstract public class ListView<T extends BaseModel> extends BaseWidget<UListElem
 		this.dataStore.addModelUpdatedListener(new ModelUpdatedListener<T>() {
 			@Override
 			public void onModelUpdated(ModelUpdatedEvent<T> event) {
-				//old:
-				//updateItem(event.getModel());
-				//refresh();
-
-				// tricker a new filter
-				ListView.this.dataStore.setFilter(ListView.this.dataStore.getFilter());
+				updateItem(event.getModel());
+				refresh();
 			}
 		});
 		this.dataStore.addFilterUpdatedListener(new FilterUpdatedListener() {
