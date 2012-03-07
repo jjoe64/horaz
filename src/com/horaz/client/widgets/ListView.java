@@ -127,6 +127,23 @@ abstract public class ListView<T extends BaseModel> extends BaseWidget<UListElem
 		return dataStore;
 	}
 
+	public LIElement getListItem(T model) {
+		// find li-element
+		LIElement li = null;
+		long id = model.getModelId();
+		for (int i=0; i<getElement().getChildCount(); i++) {
+			Node node = getElement().getChild(i);
+			if (Element.is(node)) {
+				String attr = Element.as(node).getAttribute("data-modelid");
+				if (attr != null && !attr.isEmpty() && Integer.valueOf(attr) == id) {
+					li = (LIElement) Element.as(node);
+					break;
+				}
+			}
+		}
+		return li;
+	}
+
 	/**
 	 * get the model behind a LI-Element. The li element must have to attribute data-modelid.
 	 * @param el
@@ -224,19 +241,8 @@ abstract public class ListView<T extends BaseModel> extends BaseWidget<UListElem
 	}
 
 	private void updateItem(T model) {
-		// find li-element
-		LIElement li = null;
+		LIElement li = getListItem(model);
 		long id = model.getModelId();
-		for (int i=0; i<getElement().getChildCount(); i++) {
-			Node node = getElement().getChild(i);
-			if (Element.is(node)) {
-				String attr = Element.as(node).getAttribute("data-modelid");
-				if (attr != null && !attr.isEmpty() && Integer.valueOf(attr) == id) {
-					li = (LIElement) Element.as(node);
-					break;
-				}
-			}
-		}
 		if (li == null) throw new IllegalStateException("could not find list item for model #"+id);
 		li.setClassName(""); // reset class names
 		String inner = generateItemInnerHTML(model);

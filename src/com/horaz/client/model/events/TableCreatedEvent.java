@@ -20,7 +20,12 @@
 package com.horaz.client.model.events;
 
 import com.google.gwt.event.shared.GwtEvent;
+import com.horaz.client.model.SQLiteDataStore;
 
+/**
+ * event will be fired when {@link SQLiteDataStore} created a new table
+ * within the init proccess.
+ */
 public class TableCreatedEvent extends GwtEvent<TableCreatedListener> {
 	@SuppressWarnings("rawtypes")
 	private static Type TYPE;

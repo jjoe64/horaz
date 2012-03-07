@@ -53,6 +53,9 @@ public class ModelUpdatedEvent<T extends BaseModel> extends GwtEvent<ModelUpdate
 		return getType();
 	}
 
+	/**
+	 * @return updated model
+	 */
 	public T getModel() {
 		return model;
 	}

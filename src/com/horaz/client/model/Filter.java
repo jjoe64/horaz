@@ -38,6 +38,13 @@ public class Filter {
 	private final Map<String, Object> whereNotEquals = new HashMap<String, Object>();
 	private final List<String> where = new ArrayList<String>();
 
+	/**
+	 * gets sql statement for this filter.
+	 * The statement uses paceholders '?'. You need to
+	 * use {@link #getValues()} to get the values.
+	 * @param colPrefix can be used for table e.g. "users.", must not be null
+	 * @return sql
+	 */
 	public String getSQLStatement(String colPrefix) {
 		StringBuffer sql = new StringBuffer();
 		for (Map.Entry<String, Object> entry : whereEquals.entrySet()) {
@@ -60,6 +67,10 @@ public class Filter {
 		return sql.substring(4);
 	}
 
+	/**
+	 * use this in combination with {@link #getSQLStatement(String)}
+	 * @return values for the generated sql statement
+	 */
 	public Object[] getValues() {
 		List<Object> values = new ArrayList<Object>();
 		for (Map.Entry<String, Object> entry : whereEquals.entrySet()) {
@@ -92,6 +103,11 @@ public class Filter {
 		return true;
 	}
 
+	/**
+	 * merges another filter into this
+	 * @param filter
+	 * @return itself
+	 */
 	public Filter mergeFilter(Filter filter) {
 		whereEquals.putAll(filter.whereEquals);
 		whereNotEquals.putAll(filter.whereNotEquals);
@@ -99,6 +115,11 @@ public class Filter {
 		return this;
 	}
 
+	/**
+	 * custom where clause
+	 * @param string
+	 * @return itself
+	 */
 	public Filter where(String string) {
 		where.add(string);
 		return this;

@@ -147,6 +147,35 @@ public abstract class SQLiteDataStore<T extends BaseModel> extends DataStore<T> 
 		return handlerManager.addHandler(type, handler);
 	}
 
+	public void dropTable(final Runnable callback) {
+		if (!ready) throw new IllegalStateException("Table was not initialized, yet.");
+		database.transaction(new TransactionCallback() {
+			@Override
+			public void onTransactionFailure(SQLError error) {
+			}
+
+			@Override
+			public void onTransactionStart(SQLTransaction transaction) {
+				transaction.executeSql("DROP TABLE IF EXISTS "+table, null, new StatementCallback<JavaScriptObject>() {
+					@Override
+					public boolean onFailure(SQLTransaction transaction,
+							SQLError error) {
+						throw new IllegalStateException(error.getMessage());
+					}
+					@Override
+					public void onSuccess(SQLTransaction transaction,
+							SQLResultSet<JavaScriptObject> resultSet) {
+						callback.run();
+					}
+				});
+			}
+
+			@Override
+			public void onTransactionSuccess() {
+			}
+		});
+	}
+
 	@Override
 	public void find(Filter filter, FindCallback<T> callback) {
 		findAll(filter, callback, "LIMIT 1", false);

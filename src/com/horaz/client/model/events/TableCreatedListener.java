@@ -20,7 +20,13 @@
 package com.horaz.client.model.events;
 
 import com.google.gwt.event.shared.EventHandler;
+import com.horaz.client.model.SQLiteDataStore;
 
 public interface TableCreatedListener extends EventHandler {
+	/**
+	 * event will be fired when {@link SQLiteDataStore} created a new table
+	 * within the init proccess.
+	 * @param event
+	 */
 	public void onTableCreated(TableCreatedEvent event);
 }

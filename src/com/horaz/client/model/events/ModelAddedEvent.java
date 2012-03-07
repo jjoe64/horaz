@@ -53,6 +53,9 @@ public class ModelAddedEvent<T extends BaseModel> extends GwtEvent<ModelAddedLis
 		return getType();
 	}
 
+	/**
+	 * @return the new model
+	 */
 	public T getModel() {
 		return model;
 	}

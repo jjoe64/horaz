@@ -53,6 +53,9 @@ public class ModelRemovedEvent<T extends BaseModel> extends GwtEvent<ModelRemove
 		return getType();
 	}
 
+	/**
+	 * @return removed model
+	 */
 	public T getModel() {
 		return model;
 	}
