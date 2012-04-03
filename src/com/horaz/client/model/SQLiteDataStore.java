@@ -223,7 +223,7 @@ public abstract class SQLiteDataStore<T extends BaseModel> extends DataStore<T> 
 				sql += " FROM "+table;
 
 				// join
-				if (joinStatement != null && (!useGroupBy || groupBy == null)) {
+				if (joinStatement != null) {
 					// normal
 					sql += " JOIN "+joinStatement;
 				}
