@@ -56,6 +56,6 @@ public class Button extends BaseWidget<AnchorElement> {
 	 * @param tapListener
 	 */
 	public void addTapListener(TapListener tapListener) {
-		EventFactory.bindEventHandler(getElement(), "vclick", tapListener);
+		EventFactory.bindEventHandler(getElement(), "tap", tapListener);
 	}
 }
