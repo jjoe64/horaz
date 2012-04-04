@@ -27,6 +27,10 @@ import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.Style.Unit;
 
 public abstract class BaseWidget<T extends Element> {
+	public enum Theme {
+		A, B, C, D, E
+	}
+
 	/**
 	 * maps all created widgets, so that there are no duplications.
 	 * WARNING: USE ONLY IF YOU KNOW WHAT YOU ARE DOING
@@ -50,10 +54,7 @@ public abstract class BaseWidget<T extends Element> {
 	private T elm;
 
 	protected BaseWidget(T elm) {
-		if (elm != null) {
-			allWidgetInstances.put(elm, this);
-		}
-		this.elm = elm;
+		setElement(elm);
 	}
 
 	/**
@@ -73,6 +74,9 @@ public abstract class BaseWidget<T extends Element> {
 	 * @param elm
 	 */
 	protected void setElement(T elm) {
+		if (elm != null) {
+			allWidgetInstances.put(elm, this);
+		}
 		this.elm = elm;
 	}
 

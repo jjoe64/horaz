@@ -21,7 +21,9 @@ package com.horaz.client.widgets;
 
 import com.google.gwt.dom.client.AnchorElement;
 import com.google.gwt.dom.client.Element;
+import com.google.gwt.dom.client.Node;
 import com.google.gwt.user.client.Window.Location;
+import com.google.gwt.user.client.ui.Anchor;
 import com.horaz.client.widgets.events.EventFactory;
 import com.horaz.client.widgets.events.TapListener;
 
@@ -32,6 +34,19 @@ import com.horaz.client.widgets.events.TapListener;
  * @see https://www.horaz-lang.com/dev-guide/button
  */
 public class Button extends BaseWidget<AnchorElement> {
+	public enum IconPosition {
+		NO_TEXT("notext")
+		, LEFT("left")
+		, RIGHT("right")
+		, TOP("top")
+		, BOTTOM("bottom");
+
+		private String v;
+
+		IconPosition(String v) { this.v = v; }
+		String getValue() { return v; }
+	}
+
 	/**
 	 * finds button element for given id
 	 * the html element has to be an anchor element
@@ -45,9 +60,20 @@ public class Button extends BaseWidget<AnchorElement> {
 		return new Button((AnchorElement) elm);
 	}
 
+	public Button() {
+		super(null);
+		Anchor a = new Anchor();
+		setElement(AnchorElement.as(a.getElement()));
+		getElement().setAttribute("data-role", "button");
+	}
+
 	protected Button(AnchorElement elm) {
 		super(elm);
 	}
+
+	private native void _init(Element element)/*-{
+		$wnd.jQuery(element).button();
+	}-*/;
 
 	/**
 	 * adds a listener for tap (touch / click) event
@@ -57,5 +83,22 @@ public class Button extends BaseWidget<AnchorElement> {
 	 */
 	public void addTapListener(TapListener tapListener) {
 		EventFactory.bindEventHandler(getElement(), "tap", tapListener);
+	}
+
+	public void appendTo(Node lastChild) {
+		lastChild.appendChild(getElement());
+		_init(getElement());
+	}
+
+	public void setIcon(String value) {
+		getElement().setAttribute("data-icon", value);
+	}
+
+	public void setIconPosition(IconPosition pos) {
+		getElement().setAttribute("data-iconpos", pos.getValue());
+	}
+
+	public void setTheme(Theme t) {
+		getElement().setAttribute("data-theme", t.name().toLowerCase());
 	}
 }
