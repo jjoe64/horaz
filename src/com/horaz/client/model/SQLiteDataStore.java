@@ -127,7 +127,9 @@ public abstract class SQLiteDataStore<T extends BaseModel> extends DataStore<T> 
 					}
 					i++;
 				}
-				transaction.executeSql("INSERT INTO "+table+" ("+cols.substring(1)+") VALUES ("+values.substring(1)+")", args);
+				String sqlStmt = "INSERT INTO "+table+" ("+cols.substring(1)+") VALUES ("+values.substring(1)+")";
+				System.out.println(sqlStmt);
+				transaction.executeSql(sqlStmt, args);
 			}
 
 			@Override

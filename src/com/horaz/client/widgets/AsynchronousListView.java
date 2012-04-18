@@ -55,6 +55,8 @@ public class AsynchronousListView<T extends BaseModel> extends ListView<T> {
 		return byElement((UListElement) getElementById(id));
 	}
 
+	private Filter filter;
+
 	protected AsynchronousListView(UListElement ulElm) {
 		super(ulElm);
 	}
@@ -63,7 +65,7 @@ public class AsynchronousListView<T extends BaseModel> extends ListView<T> {
 	protected void createAllItems() {
 		@SuppressWarnings("unchecked")
 		AsynchronousDataStore<T> asyncDS = (AsynchronousDataStore<T>) getDataStore();
-		asyncDS.findAll(new Filter(), new FindCallback<T>() {
+		asyncDS.findAll(filter, new FindCallback<T>() {
 			@Override
 			public void onSuccess(ModelsCollection<T> results) {
 				Iterator<T> it = results.iterator();
@@ -99,5 +101,9 @@ public class AsynchronousListView<T extends BaseModel> extends ListView<T> {
 				createAllItems();
 			}
 		}
+	}
+
+	public void setFilter(Filter filter) {
+		this.filter = filter;
 	}
 }
