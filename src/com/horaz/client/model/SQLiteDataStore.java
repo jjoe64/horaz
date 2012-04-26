@@ -134,7 +134,17 @@ public abstract class SQLiteDataStore<T extends BaseModel> extends DataStore<T> 
 
 			@Override
 			public void onTransactionSuccess() {
-				added(newModel);
+				// join
+				if (joinStatement != null) {
+					find("modelId", newModel.getModelId(), new FindCallback<T>() {
+						@Override
+						public void onSuccess(ModelsCollection<T> results) {
+							added(results.iterator().next());
+						}
+					});
+				} else {
+					added(newModel);
+				}
 			}
 		});
 	}
